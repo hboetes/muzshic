@@ -1,0 +1,226 @@
+#!/bin/zsh
+
+# Copyright 2015 Han Boetes <han@boetes.org>
+# For license info see http://unlicense.org/
+
+# This script plays songs, random or non-random, see the -h output for
+# more help.
+
+PATH=/bin:/usr/bin:/usr/local/bin
+alias GREP='grep -i'
+playlist="/mp3/playlist.m3u.gz"
+play_queue="/mp3/queue"
+
+# Ugly code for portability to Darwin
+OS=$(uname -s)
+case $OS in
+    Darwin)
+        ZCAT=gzcat
+        ;;
+    *)
+        ;;
+esac
+
+# Define zcat if it isn't already defined.
+: ${ZCAT:=zcat}
+
+# Number of songs to play, unless overriden later on.
+count=1
+
+alnum()
+{
+    if [[ -n ${1//[0-9]/} ]]; then
+        echo "That's not a valid integer!" >&2
+        exit 1
+    else
+        echo $1
+    fi
+}
+
+print_song()
+{
+    echo ${song##*/}
+    echo "NP: ${song##*/}" > ~/.nowplaying
+    rsync ~/.nowplaying han@boetes.org:
+}
+
+unprint_song()
+{
+    : > ~/.nowplaying
+    rsync ~/.nowplaying han@boetes.org:
+}
+
+warn()
+{
+    echo "Warning: Song $song not found!?" >&2
+}
+
+play_song()
+{
+    case $song in
+        # *.ogg|*.flac)
+        #     ogg123 -q "$song" || warn
+        #     ;;
+        *)
+            mplayer -demuxer lavf -vc dummy -af volume=-10 -really-quiet "$song" || echo "Warning: Song not found!?" || warn
+            ;;
+    esac
+}
+
+# Not all sed versions support the -i option. This function is a slight overkill.
+sed-i()
+{
+    TMP1=$(mktemp sed-i.XXXXXXXXXX) || return 1
+    REGEX="$1"
+    shift
+    for i in $*; do
+        sed -e "$REGEX" "$i" > $TMP1
+        # Preserve permissions etc.
+        cat $TMP1 > "$i"
+    done
+    rm $TMP1
+    unset TMP1
+}
+
+queue_mode()
+{
+    if [[ ! -f $play_queue ]]; then
+        echo "$play_queue does not exist or isn't a regular file." >&2
+        exit 1
+    fi
+    while [[ -s $play_queue ]] ; do
+        song=$(head -n1 $play_queue)
+        sed-i 1d $play_queue
+        print_song
+        play_song
+    done
+    echo "$play_queue is empty."
+    unprint_song
+}
+
+allfiles=$($ZCAT $playlist)
+
+while  (($# > 0)); do
+    case $1 in
+        -h)
+            cat << EOF
+Usage: ${0##*/} -[ncp] [grep regex]
+  -n play tracks in non-random order
+  -c x count
+  -a play all selected files.
+  -p pause after each track.
+  -l select regex with finetuning.
+  -L = -l -a -n
+  -q play song from $play_queue (first line & remove that line)
+EOF
+            exit 0
+            ;;
+        -q)
+            # No other arguments.
+            queue="true"
+            unset nonrandom get_list pause all
+            break
+            ;;
+        -n)
+            shift 1
+            nonrandom="true"
+            ;;
+        -c)
+            count=$(alnum $2)
+            shift 2
+            ;;
+        -p)
+            pause="true"
+            shift 1
+            ;;
+        -l)
+            get_list="true"
+            shift 1
+            ;;
+        -L)
+            get_list="true"
+            all="true"
+            nonrandom="true"
+            shift 1
+            ;;
+        -a)
+            all="true"
+            shift 1
+            ;;
+
+        *)
+            # Handle input regex below.
+            break
+            ;;
+    esac
+done
+
+if [[ $queue = "true" ]]; then
+    queue_mode
+    exit 0
+fi
+
+# What are we going to play?
+searchstring="$*"
+
+# a regex has been given and we can refine that regex and see the
+# results.
+if [[ $get_list = "true" ]]; then
+    while :; do
+        if [[ -z $searchstring ]]; then
+            searchstring='.'
+        fi
+        selection="$(echo $allfiles | GREP $searchstring)"
+        clear
+        echo $selection
+        oldsearchstring="$searchstring"
+        vared -p 'What do you want to hear? Press enter if you are done. ' searchstring
+        if [[ $oldsearchstring = $searchstring ]]; then
+            allfiles="$selection"
+            break
+        fi
+    done
+elif [[ $searchstring = "" ]]; then
+    # No searchstring given, that's a valid option too. Just play
+    # anything.
+    :
+elif ! allfiles="$(echo $allfiles | GREP $searchstring )"; then
+    # Or a regex is given but no need to refine it.
+    echo "Nothing found with that regexp." >&2
+    exit 1
+fi
+
+nofiles=$(echo $allfiles | wc -l)
+if [[ $all = true ]]; then
+    count=$nofiles
+fi
+
+# Get through our list.
+while ((count > 0)); do
+    [[ -z $allfiles ]] && break
+    if [[ -z $nonrandom ]]; then
+        # The Pseudorandom $RANDOM is not random enough. All songs
+        # from the same few artists gets annoying real quick.
+        rndm=$(od -vAn -N4 -tu4 < /dev/urandom)
+        # Mind the off by one.
+        (((rndm %= nofiles) += 1))
+    else
+        rndm=1
+    fi
+    song="$(echo $allfiles|sed -ne ${rndm}p)"
+    # Strip the path.
+    print_song
+    play_song
+    # Remove the current song from the playlist.
+    allfiles="$(echo $allfiles|sed -e ${rndm}d)"
+    # Stop on an empty playlist.
+    ((count--))
+    ((nofiles--))
+    if [[ $pause = "true" ]]; then
+        echo -n 'press a key to continue '
+        read -sk 1 niks
+        echo
+    fi
+done
+
+unprint_song

@@ -1,0 +1,17 @@
+#!/bin/zsh
+# Copyright 2015 Han Boetes <han@boetes.org>
+# For license info see http://unlicense.org/
+
+# This script generates a very simple database of all my music files.
+
+find /mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks}  \
+    -type f \
+    -name '*.mp3'  -o \
+    -name '*.ogg'  -o \
+    -name '*.flac' -o \
+    -name '*.ape'  -o \
+    -name '*.mpc' | sort -n |gzip -c > /mp3/new.playlist.m3u.gz
+if [ -e /mp3/playlist.m3u.gz ]; then
+    zdiff -u /mp3/playlist.m3u.gz /mp3/new.playlist.m3u.gz | colordiff | w3m
+fi
+mv -f /mp3/new.playlist.m3u.gz /mp3/playlist.m3u.gz
