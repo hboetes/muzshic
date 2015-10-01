@@ -118,7 +118,6 @@ queue_mode()
             echo
         fi
     done
-    echo "$play_queue is empty."
     unprint_song
     remove_pid
 }
@@ -187,6 +186,7 @@ done
 
 if [[ $queue = "true" ]]; then
     queue_mode
+    # And stop further processing.
     exit 0
 fi
 
