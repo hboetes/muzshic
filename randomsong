@@ -6,7 +6,7 @@
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
-PATH=/bin:/usr/bin:/usr/local/bin
+PATH=/bin:/usr/local/bin:/usr/bin
 alias GREP='grep -i'
 playlist="/mp3/playlist.m3u.gz"
 play_queue="/mp3/queue"
@@ -43,13 +43,13 @@ print_song()
 {
     echo ${song##*/}
     echo "NP: ${song##*/}" > ~/.nowplaying
-    rsync ~/.nowplaying han@boetes.org:
+    rsync ~/.nowplaying han@boetes.org: &
 }
 
 unprint_song()
 {
     : > ~/.nowplaying
-    rsync ~/.nowplaying han@boetes.org:
+    rsync ~/.nowplaying han@boetes.org: &
 }
 
 warn()
@@ -59,12 +59,13 @@ warn()
 
 play_song()
 {
+    print_song
     case $song in
         # *.ogg|*.flac)
         #     ogg123 -q "$song" || warn
         #     ;;
         *)
-            mplayer -demuxer lavf -vc dummy -af volume=-10 -really-quiet "$song" || echo "Warning: Song not found!?" || warn
+            mplayer -demuxer lavf -vc dummy -af volume=-10 -really-quiet "$song" || warn
             ;;
     esac
 }
@@ -192,7 +193,7 @@ fi
 # What are we going to play?
 searchstring="$*"
 
-# a regex has been given and we can refine that regex and see the
+# A regex has been given and we can refine that regex and see the
 # results.
 if [[ $get_list = "true" ]]; then
     while :; do
