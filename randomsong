@@ -118,13 +118,23 @@ queue_mode()
             echo
         fi
     done
-    unprint_song
-    remove_pid
 }
 
 enqueue_song()
 {
     echo "$song" >> $play_queue
+}
+
+zshexit()
+{
+    unprint_song
+    remove_pid
+    exit
+}
+
+TRAPINT()
+{
+    zshexit
 }
 
 allfiles=$($ZCAT $playlist)
