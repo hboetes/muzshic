@@ -92,13 +92,23 @@ create_pid()
         pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || exit 1
         mv $pid_tmpdir $pid_dir || exit 1
     fi
-    # And then create a pid_file
-    echo $$ > $pid_dir/pid
+
+    if [[ -e $pid_dir/pid ]]; then
+        echo "$prog is already running." >&2
+        exit 1
+    else
+        # And then create a pid_file
+        echo $$ > $pid_dir/pid
+    fi
 }
 
 remove_pid()
 {
-    rm $pid_dir/pid
+    # Only remove the pidfile if it belongs to the current process.
+    pid=$(< $pid_dir/pid)
+    if [[ $$ = $pid ]]; then
+        rm $pid_dir/pid
+    fi
 }
 
 queue_mode()
@@ -258,7 +268,8 @@ while ((count > 0)); do
     ((nofiles--))
 done
 
-# Probably you want to start playing music if you get here.
+# Probably you want to start playing music if you get here and $0
+# isn't running.
 if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
 else
