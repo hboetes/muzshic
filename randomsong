@@ -70,7 +70,8 @@ play_song()
     esac
 }
 
-# Not all sed versions support the -i option. This function is a slight overkill.
+# Not all sed versions support the -i option. This function is a
+# slight overkill. I actually wrote it for another program.
 sed-i()
 {
     TMP1=$(mktemp sed-i.XXXXXXXXXX) || return 1
@@ -160,7 +161,8 @@ Usage: ${0##*/} -[ncp] [grep regex]
   -p pause after each track.
   -l select regex with finetuning.
   -L = -l -a -n
-  -q play song from $play_queue (first line & remove that line)
+  -q play all songs from $play_queue
+  -x clear the queue
 EOF
             exit 0
             ;;
@@ -194,6 +196,11 @@ EOF
             ;;
         -a)
             all="true"
+            shift 1
+            ;;
+        -x)
+            # Clear the queue
+            : > $play_queue
             shift 1
             ;;
 
