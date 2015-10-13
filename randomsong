@@ -61,9 +61,12 @@ play_song()
 {
     print_song
     case $song in
-        # *.ogg|*.flac)
-        #     ogg123 -q "$song" || warn
-        #     ;;
+        *.ogg)
+            # Something is wrong with mplayer streaming ogg media from
+            # a network share.
+            ogg123 -q "$song" || warn
+            # mplayer -af volume=-10 -really-quiet "$song" || warn
+            ;;
         *)
             mplayer -demuxer lavf -vc dummy -af volume=-10 -really-quiet "$song" || warn
             ;;
