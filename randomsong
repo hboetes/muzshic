@@ -14,18 +14,17 @@ play_queue="/mp3/queue"
 prog="${0##*/}"
 pid_dir="$TMPDIR/${prog}-$(id -u)"
 
-# Ugly code for portability to Darwin
+# Ugly code for portability.
 OS=$(uname -s)
 case $OS in
     Darwin)
         ZCAT=gzcat
         ;;
     *)
+        ZCAT=zcat
         ;;
 esac
 
-# Define zcat if it isn't already defined.
-: ${ZCAT:=zcat}
 
 # Number of songs to play, unless overriden later on.
 count=1
