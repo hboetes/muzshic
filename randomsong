@@ -11,7 +11,8 @@ alias GREP='grep -i'
 playlist="/mp3/playlist.m3u.gz"
 play_queue="/mp3/queue"
 # Directory where you want to store your pidfile.
-pid_dir="$TMPDIR/${0##*/}-$(id -u)"
+prog="${0##*/}"
+pid_dir="$TMPDIR/${prog}-$(id -u)"
 
 # Ugly code for portability to Darwin
 OS=$(uname -s)
