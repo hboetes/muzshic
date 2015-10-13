@@ -4,7 +4,13 @@
 # This script locates any flac file without replaygain tags and
 # produces the script "fixcommands" which I run to add those tags.
 rm -f dirlist fixcommands
-find /mp3/{4ad,HipHop,Jazz,Klassiek,Metal,Pop,Soundtracks} -name '*.flac'| \
+
+dirs="$1"
+if [[ $dirs = "" ]]; then
+    dirs="/mp3/{4ad,HipHop,Jazz,Klassiek,Metal,Pop,Soundtracks}"
+fi
+
+find ${dirs} -name '*.flac'| \
     while read i; do
         if [ -z "$(metaflac --show-tag=REPLAYGAIN_TRACK_GAIN $i)" ]; then
             echo "$i has no replaygain info :-/"
