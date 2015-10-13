@@ -214,14 +214,14 @@ EOF
     esac
 done
 
+# What are we going to play?
+searchstring="$*"
+
 if [[ $queue = "true" ]]; then
     queue_mode
     # And stop further processing.
     exit 0
 fi
-
-# What are we going to play?
-searchstring="$*"
 
 # A regex has been given and we can refine that regex and see the
 # results.
