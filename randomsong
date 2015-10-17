@@ -175,7 +175,7 @@ while  (($# > 0)); do
     case $1 in
         -h)
             cat << EOF
-Usage: ${0##*/} -[ncp] [grep regex]
+Usage: $prog -[ncp] [grep regex]
   -n play tracks in non-random order
   -c x count
   -a play all selected files.
