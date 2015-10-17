@@ -6,10 +6,15 @@
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
+# Feature requests: play songs only once.
+
 PATH=/bin:/usr/local/bin:/usr/bin
+setopt no_bare_glob_qual
 alias GREP='grep -i'
 playlist="/mp3/playlist.m3u.gz"
 play_queue="/mp3/queue"
+# Number of track in the queue to print
+qtail=20
 play_hist="/mp3/history"
 # Directory where you want to store your pidfile.
 prog="${0##*/}"
@@ -50,6 +55,11 @@ print_green()
     echo '\e[32m'${1}'\e[00m'
 }
 
+print_yellow()
+{
+    echo '\e[33m'${1}'\e[00m'
+}
+
 print_song()
 {
     song_nopath="${song##*/}"
@@ -62,7 +72,12 @@ print_song()
     echo "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print to much files in the queue
-    strip_path $play_queue | tail -n20
+    strip_path $play_queue | tail -n$qtail
+    qlength=$(cat $play_queue | wc -l)
+    if ((qlength > qtail)); then
+        ((rest = qlength - qtail))
+        print_yellow "And $rest more tracks."
+    fi
 }
 
 unprint_song()
