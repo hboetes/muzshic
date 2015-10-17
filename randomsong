@@ -61,7 +61,8 @@ print_song()
     echo $song_nopath >> $play_hist
     echo "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
-    strip_path $play_queue
+    # Let's not print to much files in the queue
+    strip_path $play_queue | tail -n20
 }
 
 unprint_song()
