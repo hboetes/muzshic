@@ -10,6 +10,7 @@ PATH=/bin:/usr/local/bin:/usr/bin
 alias GREP='grep -i'
 playlist="/mp3/playlist.m3u.gz"
 play_queue="/mp3/queue"
+play_hist="/mp3/history"
 # Directory where you want to store your pidfile.
 prog="${0##*/}"
 pid_dir="$TMPDIR/${prog}-$(id -u)"
@@ -39,11 +40,28 @@ alnum()
     fi
 }
 
+strip_path()
+{
+    sed -e 's|.*/||' $1
+}
+
+print_green()
+{
+    echo '\e[32m'${1}'\e[00m'
+}
+
 print_song()
 {
-    echo ${song##*/}
-    echo "NP: ${song##*/}" > ~/.nowplaying
+    song_nopath="${song##*/}"
+    clear
+    # Just in case the file does not exist.
+    touch $play_hist
+    tail -n10 $play_hist | strip_path
+    print_green $song_nopath
+    echo $song_nopath >> $play_hist
+    echo "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
+    strip_path $play_queue
 }
 
 unprint_song()
