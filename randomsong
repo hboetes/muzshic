@@ -72,7 +72,7 @@ print_song()
     echo "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print to much files in the queue
-    strip_path $play_queue | tail -n$qtail
+    strip_path $play_queue | head -n$qtail
     qlength=$(cat $play_queue | wc -l)
     if ((qlength > qtail)); then
         ((rest = qlength - qtail))
