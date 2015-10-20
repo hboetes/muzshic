@@ -44,7 +44,7 @@ for file in *.flac *.ogg *.mpc; do
     i=$(($i + 1))
     echo "Converting $file to wav format"
     # using `outfile' prevents quoting problems.
-    mplayer -really-quiet -slave -vc null -vo null -ao pcm:fast:file=$TMPDIR/outfile$i "$file" >& /dev/null
+    mpv -really-quiet -slave -vc null -vo null -ao pcm:fast:file=$TMPDIR/outfile$i "$file" >& /dev/null
     normalize-audio $TMPDIR/outfile$i
     mv $TMPDIR/outfile$i "$TEMPDIR/${file%.*}.wav"
     convert=true

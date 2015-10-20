@@ -10,8 +10,8 @@ find /mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks}  \
     -name '*.ogg'  -o \
     -name '*.flac' -o \
     -name '*.ape'  -o \
-    -name '*.mpc' | sort -n |gzip -c > /mp3/new.playlist.m3u.gz
-if [ -e /mp3/playlist.m3u.gz ]; then
-    zdiff -u /mp3/playlist.m3u.gz /mp3/new.playlist.m3u.gz | colordiff | w3m
+    -name '*.mpc' | sort -n |gzip -c > /mp3/new.playlist.gz
+if [ -e /mp3/playlist.gz ]; then
+    zdiff -u /mp3/playlist.gz /mp3/new.playlist.gz | colordiff | w3m
 fi
-mv -f /mp3/new.playlist.m3u.gz /mp3/playlist.m3u.gz
+mv -f /mp3/new.playlist.gz /mp3/playlist.gz

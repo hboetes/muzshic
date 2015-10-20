@@ -11,7 +11,7 @@
 PATH=/bin:/usr/local/bin:/usr/bin
 setopt no_bare_glob_qual
 alias GREP='grep -i'
-playlist="/mp3/playlist.m3u.gz"
+playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
 # Number of track in the queue to print
 qtail=20
