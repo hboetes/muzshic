@@ -5,7 +5,7 @@ Requests are welcome.
 
 ## What does it look like?
 
-![screenshot](/screenshot/screenshot.jpg?raw=true "That's what it looks like!")
+![screenshot](/screenshot/screenshot.png?raw=true "That's what it looks like!")
 
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
