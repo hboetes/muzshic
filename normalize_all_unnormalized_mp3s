@@ -1,9 +1,0 @@
-#!/bin/sh
-# Copyright 2015 Han Boetes <han@boetes.org>
-# For license info see http://unlicense.org/
-
-find /mp3  type f -name '*.mp3'|while read mp3tje; do
-    if id3v2 -l "$mp3tje"|grep TIT; then
-	normalize "$mp3tje"
-    fi
-done

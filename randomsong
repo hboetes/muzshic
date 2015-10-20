@@ -94,17 +94,8 @@ warn()
 play_song()
 {
     print_song
-    case $song in
-        *.ogg)
-            # Something is wrong with mplayer streaming ogg media from
-            # a network share.
-            ogg123 -q "$song" || warn
-            # mplayer -af volume=-10 -really-quiet "$song" || warn
-            ;;
-        *)
-            mplayer -demuxer lavf -vc dummy -af volume=-10 -really-quiet "$song" || warn
-            ;;
-    esac
+    # -vo null disables displaying album art>
+    mpv  -vo null -af volume=-10 "$song" -really-quiet || warn
 }
 
 # Not all sed versions support the -i option. This function is a
