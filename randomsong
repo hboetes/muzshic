@@ -133,10 +133,14 @@ create_pid()
 
 remove_pid()
 {
-    # Only remove the pidfile if it belongs to the current process.
+    # Only remove the pidfile if it belongs to the current
+    # process. Should not happen actually.
     pid=$(< $pid_dir/pid)
     if [[ $$ = $pid ]]; then
         rm $pid_dir/pid
+    else
+        # debug message
+        echo 'Why did I get here?'
     fi
 }
 
@@ -166,8 +170,10 @@ enqueue_song()
 
 zshexit()
 {
-    unprint_song
-    remove_pid
+    if [[ $do_nothing != TRUE ]]; then
+        unprint_song
+        remove_pid
+    fi
     exit
 }
 
@@ -309,4 +315,5 @@ if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
 else
     echo "$holdcount songs added to the play queue file."
+    do_nothing=TRUE
 fi
