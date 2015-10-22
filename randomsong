@@ -108,7 +108,7 @@ sed-i()
     for i in $*; do
         sed -e "$REGEX" "$i" > $TMP1
         # Preserve permissions etc.
-        cat $TMP1 > "$i"
+        cat $TMP1 > "$i" || fail2write
     done
     rm $TMP1
     unset TMP1
@@ -144,6 +144,12 @@ remove_pid()
     fi
 }
 
+fail2write()
+{
+    echo "Can't write to ${play_queue}, check permissions." >&2
+    zshexit
+}
+
 queue_mode()
 {
     create_pid
@@ -153,7 +159,7 @@ queue_mode()
     fi
     while [[ -s $play_queue ]]; do
         song=$(head -n1 $play_queue)
-        sed-i 1d $play_queue
+        sed-i 1d $play_queue || fail2write
         play_song
         if [[ $pause = "true" ]]; then
             echo -n 'Press the any key to continue '
@@ -166,10 +172,10 @@ queue_mode()
 enqueue_song()
 {
     if [[ $head = "true" ]]; then
-        sed -i "$headcount i $song" $play_queue
+        sed-i "$headcount i $song" $play_queue || fail2write
         ((headcount++))
     else
-        echo "$song" >> $play_queue
+        echo "$song" >> $play_queue || fail2write
     fi
 }
 
