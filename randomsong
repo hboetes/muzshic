@@ -7,6 +7,7 @@
 # more help.
 
 # Feature requests: play songs only once, add optional count cin queue mode
+# use arrays!!!
 
 PATH=/bin:/usr/local/bin:/usr/bin
 setopt no_bare_glob_qual
@@ -19,6 +20,8 @@ play_hist="/mp3/history"
 # Directory where you want to store your pidfile.
 prog="${0##*/}"
 pid_dir="$TMPDIR/${prog}-$(id -u)"
+# Number of songs to play, unless overriden later on.
+count=1
 
 # Ugly code for portability.
 OS=$(uname -s)
@@ -31,9 +34,6 @@ case $OS in
         ;;
 esac
 
-
-# Number of songs to play, unless overriden later on.
-count=1
 
 alnum()
 {
@@ -94,7 +94,7 @@ warn()
 play_song()
 {
     print_song
-    # -vo null disables displaying album art>
+    # -vo null disables displaying album art
     mpv  -vo null -af volume=-10 "$song" -really-quiet || warn
 }
 
@@ -138,9 +138,6 @@ remove_pid()
     pid=$(< $pid_dir/pid)
     if [[ $$ = $pid ]]; then
         rm $pid_dir/pid
-    else
-        # debug message
-        echo 'Why did I get here?'
     fi
 }
 
@@ -188,17 +185,16 @@ zshexit()
     exit
 }
 
+# Incase the program is interrupted, for example by pressing ctrl-c
+# first make sure the pid file is removed etc.
 TRAPINT()
 {
     zshexit
 }
 
-allfiles=$($ZCAT $playlist)
-
-while  (($# > 0)); do
-    case $1 in
-        -h)
-            cat << EOF
+show_help()
+{
+    cat << EOF
 Usage: $prog -[ncp] [grep regex]
   -n play tracks in non-random order
   -c x count
@@ -210,10 +206,19 @@ Usage: $prog -[ncp] [grep regex]
   -x clear the queue
   -H add songs to the head of $play_queue
 EOF
-            exit 0
+    exit 0
+}
+
+allfiles=("${(@f)$($ZCAT $playlist)}")
+
+# Parse command line arguments
+while  (($# > 0)); do
+    case $1 in
+        -h)
+            show_help
             ;;
         -q)
-            # No other arguments.
+            # No other arguments. Just play the queue until the end.
             queue="true"
             unset nonrandom get_list pause all
             break
@@ -278,27 +283,28 @@ if [[ $get_list = "true" ]]; then
         if [[ -z $searchstring ]]; then
             searchstring='.'
         fi
-        selection="$(echo $allfiles | GREP $searchstring)"
+        selection=("${(@f)$(print -l $allfiles | GREP $searchstring)}")
         clear
-        echo $selection
+        print -l $selection
         oldsearchstring="$searchstring"
+        # vared is a very nifty function provided by zsh.
         vared -p 'What do you want to hear? Press enter if you are done. ' searchstring
         if [[ $oldsearchstring = $searchstring ]]; then
-            allfiles="$selection"
+            allfiles=($selection)
             break
         fi
     done
-elif [[ $searchstring = "" ]]; then
+elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
-    # anything.
+    # something.
     :
-elif ! allfiles="$(echo $allfiles | GREP $searchstring )"; then
+elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
     # Or a regex is given but no need to refine it.
     echo "Nothing found with that regexp." >&2
     exit 1
 fi
 
-nofiles=$(echo $allfiles | wc -l)
+nofiles=${#allfiles}
 if [[ $all = true ]]; then
     count=$nofiles
 fi
@@ -306,7 +312,7 @@ fi
 holdcount="$count"
 # Get through our list.
 while ((count > 0)); do
-    [[ -z $allfiles ]] && break
+    [[ ${#allfiles} == 0 ]] && break
     if [[ -z $nonrandom ]]; then
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
@@ -316,12 +322,11 @@ while ((count > 0)); do
     else
         rndm=1
     fi
-    song="$(echo $allfiles|sed -ne ${rndm}p)"
+    song="$allfiles[$rndm]"
     # Strip the path.
     enqueue_song
     # Remove the current song from the playlist.
-    allfiles="$(echo $allfiles|sed -e ${rndm}d)"
-    # Stop on an empty playlist.
+    allfiles[$rndm]=()
     ((count--))
     ((nofiles--))
 done
