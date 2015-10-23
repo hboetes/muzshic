@@ -6,8 +6,7 @@
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
-# Feature requests: play songs only once, add optional count cin queue mode
-# use arrays!!!
+# Feature requests: play songs only once, add optional count in queue mode
 
 PATH=/bin:/usr/local/bin:/usr/bin
 setopt no_bare_glob_qual
@@ -94,7 +93,7 @@ warn()
 play_song()
 {
     print_song
-    # -vo null disables displaying album art
+    # "-vo null" disables displaying album art
     mpv  -vo null -af volume=-10 "$song" -really-quiet || warn
 }
 
