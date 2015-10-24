@@ -163,6 +163,7 @@ queue_mode()
             echo
         fi
     done
+    exit 0
 }
 
 enqueue_song()
