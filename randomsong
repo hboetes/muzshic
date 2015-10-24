@@ -177,7 +177,7 @@ enqueue_song()
 
 zshexit()
 {
-    if [[ $do_nothing != TRUE ]]; then
+    if [[ $do_nothing != "TRUE" ]]; then
         unprint_song
         remove_pid
     fi
@@ -279,7 +279,7 @@ fi
 # results.
 if [[ $get_list = "TRUE" ]]; then
     while :; do
-        if [[ -z $searchstring ]]; then
+        if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
         selection=("${(@f)$(print -l $allfiles | GREP $searchstring)}")
@@ -304,7 +304,7 @@ elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
 fi
 
 nofiles=${#allfiles}
-if [[ $all = TRUE ]]; then
+if [[ $all = "TRUE" ]]; then
     count=$nofiles
 fi
 
@@ -312,7 +312,7 @@ holdcount="$count"
 # Get through our list.
 while ((count > 0)); do
     [[ ${#allfiles} == 0 ]] && break
-    if [[ -z $nonrandom ]]; then
+    if [[ $nonrandom == "" ]]; then
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
         rndm=$(od -vAn -N4 -tu4 < /dev/urandom)
@@ -336,5 +336,5 @@ if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
 else
     echo "$holdcount songs added to the play queue file."
-    do_nothing=TRUE
+    do_nothing="TRUE"
 fi
