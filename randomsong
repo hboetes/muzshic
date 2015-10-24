@@ -209,6 +209,8 @@ EOF
     exit 0
 }
 
+# This is a bit of zsh magic: array=("${(@f)$(command)}") it ensures a
+# list of files is turned into a proper array.
 allfiles=("${(@f)$($ZCAT $playlist)}")
 
 # Parse command line arguments
