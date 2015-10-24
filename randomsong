@@ -157,7 +157,7 @@ queue_mode()
         song=$(head -n1 $play_queue)
         sed-i 1d $play_queue || fail2write
         play_song
-        if [[ $pause = "true" ]]; then
+        if [[ $pause = "TRUE" ]]; then
             echo -n 'Press the any key to continue '
             read -sk 1 nothing
             echo
@@ -167,7 +167,7 @@ queue_mode()
 
 enqueue_song()
 {
-    if [[ $head = "true" ]]; then
+    if [[ $head = "TRUE" ]]; then
         sed-i "$headcount i $song" $play_queue || fail2write
         ((headcount++))
     else
@@ -218,34 +218,34 @@ while  (($# > 0)); do
             ;;
         -q)
             # No other arguments. Just play the queue until the end.
-            queue="true"
+            queue="TRUE"
             unset nonrandom get_list pause all
             break
             ;;
         -n)
             shift 1
-            nonrandom="true"
+            nonrandom="TRUE"
             ;;
         -c)
             count=$(alnum $2)
             shift 2
             ;;
         -p)
-            pause="true"
+            pause="TRUE"
             shift 1
             ;;
         -l)
-            get_list="true"
+            get_list="TRUE"
             shift 1
             ;;
         -L)
-            get_list="true"
-            all="true"
-            nonrandom="true"
+            get_list="TRUE"
+            all="TRUE"
+            nonrandom="TRUE"
             shift 1
             ;;
         -a)
-            all="true"
+            all="TRUE"
             shift 1
             ;;
         -x)
@@ -255,7 +255,7 @@ while  (($# > 0)); do
             ;;
 
         -H)
-            head="true"
+            head="TRUE"
             headcount=1
             shift 1
             ;;
@@ -269,7 +269,7 @@ done
 # What are we going to play?
 searchstring="$*"
 
-if [[ $queue = "true" ]]; then
+if [[ $queue = "TRUE" ]]; then
     queue_mode
     # And stop further processing.
     exit 0
@@ -277,7 +277,7 @@ fi
 
 # A regex has been given and we can refine that regex and see the
 # results.
-if [[ $get_list = "true" ]]; then
+if [[ $get_list = "TRUE" ]]; then
     while :; do
         if [[ -z $searchstring ]]; then
             searchstring='.'
@@ -304,7 +304,7 @@ elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
 fi
 
 nofiles=${#allfiles}
-if [[ $all = true ]]; then
+if [[ $all = TRUE ]]; then
     count=$nofiles
 fi
 
