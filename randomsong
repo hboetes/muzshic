@@ -163,6 +163,10 @@ queue_mode()
             echo
         fi
     done
+    # This message only makes sense in queue mode.
+    if [[ $qmode == "TRUE" ]]; then
+        echo "The queue is empty!"
+    fi
     exit 0
 }
 
@@ -206,7 +210,6 @@ Usage: $prog -[ncaplLqxH] [grep regex]
   -x clear the queue
   -H add songs to the head of $play_queue
 EOF
-    exit 0
 }
 
 # This is a bit of zsh magic: array=("${(@f)$(command)}") it ensures a
@@ -218,10 +221,13 @@ while  (($# > 0)); do
     case $1 in
         -h)
             show_help
+            do_nothing="TRUE"
+            exit 0
             ;;
         -q)
             # No other arguments. Just play the queue until the end.
             unset nonrandom get_list pause all
+            qmode="TRUE"
             queue_mode
             ;;
         -n)
@@ -260,6 +266,12 @@ while  (($# > 0)); do
             head="TRUE"
             headcount=1
             shift 1
+            ;;
+        -*)
+            print "Unknown option: $1" >&2
+            show_help
+            do_nothing="TRUE"
+            exit 1
             ;;
         *)
             # Handle input regex below.
