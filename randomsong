@@ -194,7 +194,7 @@ TRAPINT()
 show_help()
 {
     cat << EOF
-Usage: $prog -[ncp] [grep regex]
+Usage: $prog -[ncaplLqxH] [grep regex]
   -n play tracks in non-random order
   -c x count
   -a play all selected files.
