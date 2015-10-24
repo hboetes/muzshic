@@ -218,9 +218,8 @@ while  (($# > 0)); do
             ;;
         -q)
             # No other arguments. Just play the queue until the end.
-            queue="TRUE"
             unset nonrandom get_list pause all
-            break
+            queue_mode
             ;;
         -n)
             shift 1
@@ -268,12 +267,6 @@ done
 
 # What are we going to play?
 searchstring="$*"
-
-if [[ $queue = "TRUE" ]]; then
-    queue_mode
-    # And stop further processing.
-    exit 0
-fi
 
 # A regex has been given and we can refine that regex and see the
 # results.
