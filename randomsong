@@ -36,7 +36,7 @@ esac
 
 alnum()
 {
-    if [[ -n ${1//[0-9]/} ]]; then
+    if [[ ${1//[0-9]/} != "" ]]; then
         echo "That's not a valid integer!" >&2
         exit 1
     else
