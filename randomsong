@@ -36,7 +36,7 @@ esac
 
 alnum()
 {
-    if [[ ${1//[0-9]/} != "" ]]; then
+    if [[ $1 == "" ]] || [[ ${1//[0-9]/} != "" ]]; then
         echo "That's not a valid integer!" >&2
         exit 1
     else
@@ -229,7 +229,7 @@ while  (($# > 0)); do
             nonrandom="TRUE"
             ;;
         -c)
-            count=$(alnum $2)
+            count=$(alnum $2) || exit 1
             shift 2
             ;;
         -p)
