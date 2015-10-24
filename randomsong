@@ -299,21 +299,21 @@ elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
     exit 1
 fi
 
-nofiles=${#allfiles}
 if [[ $all = "TRUE" ]]; then
-    count=$nofiles
+    count=${#allfiles}
 fi
 
 holdcount="$count"
 # Get through our list.
 while ((count > 0)); do
+    # XXX this break is a bug, look at the flow
     [[ ${#allfiles} == 0 ]] && break
     if [[ $nonrandom == "" ]]; then
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
         rndm=$(od -vAn -N4 -tu4 < /dev/urandom)
         # Mind the off by one.
-        (((rndm %= nofiles) += 1))
+        (((rndm %= ${#allfiles}) += 1))
     else
         rndm=1
     fi
@@ -323,7 +323,6 @@ while ((count > 0)); do
     # Remove the current song from the playlist.
     allfiles[$rndm]=()
     ((count--))
-    ((nofiles--))
 done
 
 # Probably you want to start playing music if you get here and $0
