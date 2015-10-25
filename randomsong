@@ -321,7 +321,10 @@ fi
 holdcount="$count"
 # Get through our list.
 while ((count-- > 0)); do
-    [[ ${#allfiles} == 0 ]] && error 'No more files to play.'
+    if [[ ${#allfiles} == 0 ]]; then
+        print 'No more files to play.'
+        break
+    fi
     if [[ $nonrandom == "TRUE" ]]; then
         rndm=1
     else
