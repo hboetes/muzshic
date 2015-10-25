@@ -320,7 +320,7 @@ fi
 
 holdcount="$count"
 # Get through our list.
-while ((count > 0)); do
+while ((count-- > 0)); do
     # XXX this break is a bug, look at the flow
     [[ ${#allfiles} == 0 ]] && break
     if [[ $nonrandom == "" ]]; then
@@ -337,7 +337,6 @@ while ((count > 0)); do
     enqueue_song
     # Remove the current song from the playlist.
     allfiles[$rndm]=()
-    ((count--))
 done
 
 # Probably you want to start playing music if you get here and $0
