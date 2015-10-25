@@ -38,10 +38,7 @@ esac
 alnum()
 {
     if [[ $1 != <-> ]]; then
-        print "$1 is not a valid integer!" >&2
-        exit 1
-    else
-        print $1
+        error "'$1' is not a valid integer!"
     fi
 }
 
@@ -88,7 +85,13 @@ unprint_song()
 
 warn()
 {
-    print "Warning: Song $song not found!?" >&2
+    print "$prog: Warning: Song $song not found!?" >&2
+}
+
+error()
+{
+    print "$prog: $1" >&2
+    exit 1
 }
 
 play_song()
@@ -118,13 +121,12 @@ create_pid()
 {
     # First create the pid_dir in a safe way, if it doesn't exist.
     if [[ ! -d $pid_dir ]]; then
-        pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || exit 1
-        mv $pid_tmpdir $pid_dir || exit 1
+        pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || error "Can't create tmp dir."
+        mv $pid_tmpdir $pid_dir || error "Can't create pid dir."
     fi
 
     if [[ -e $pid_dir/pid ]]; then
-        print "$prog is already running." >&2
-        exit 1
+        error "is already running."
     else
         # And then create a pid_file
         print $$ > $pid_dir/pid
@@ -151,8 +153,7 @@ queue_mode()
 {
     create_pid
     if [[ ! -f $play_queue ]]; then
-        print "$play_queue does not exist or isn't a regular file." >&2
-        exit 1
+        error "$play_queue does not exist or isn't a regular file."
     fi
     while [[ -s $play_queue ]]; do
         song=$(head -n1 $play_queue)
@@ -232,7 +233,8 @@ while  (($# > 0)); do
             nonrandom="TRUE"
             ;;
         -c)
-            count=$(alnum $2) || exit 1
+            alnum $2
+            count=$2
             shift 2
             ;;
         -p)
@@ -308,8 +310,8 @@ elif [[ $searchstring == "" ]]; then
     :
 elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
     # Or a regex is given but no need to refine it.
-    print "Nothing found with that regexp." >&2
-    exit 1
+    do_nothing="TRUE"
+    error "Nothing found with that regexp."
 fi
 
 if [[ $all = "TRUE" ]]; then
