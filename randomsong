@@ -52,12 +52,12 @@ strip_path()
 
 print_green()
 {
-    echo '\e[32m'${1}'\e[00m'
+    print '\e[32m'${1}'\e[00m'
 }
 
 print_yellow()
 {
-    echo '\e[33m'${1}'\e[00m'
+    print '\e[33m'${1}'\e[00m'
 }
 
 print_song()
@@ -68,8 +68,8 @@ print_song()
     touch $play_hist
     tail -n10 $play_hist | strip_path
     print_green $song_nopath
-    echo $song_nopath >> $play_hist
-    echo "NP: $song_nopath" > ~/.nowplaying
+    print $song_nopath >> $play_hist
+    print "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print to much files in the queue
     strip_path $play_queue | head -n$qtail
@@ -88,7 +88,7 @@ unprint_song()
 
 warn()
 {
-    echo "Warning: Song $song not found!?" >&2
+    print "Warning: Song $song not found!?" >&2
 }
 
 play_song()
@@ -123,11 +123,11 @@ create_pid()
     fi
 
     if [[ -e $pid_dir/pid ]]; then
-        echo "$prog is already running." >&2
+        print "$prog is already running." >&2
         exit 1
     else
         # And then create a pid_file
-        echo $$ > $pid_dir/pid
+        print $$ > $pid_dir/pid
     fi
 }
 
@@ -143,7 +143,7 @@ remove_pid()
 
 fail2write()
 {
-    echo "Can't write to ${play_queue}, check permissions." >&2
+    print "Can't write to ${play_queue}, check permissions." >&2
     zshexit
 }
 
@@ -151,7 +151,7 @@ queue_mode()
 {
     create_pid
     if [[ ! -f $play_queue ]]; then
-        echo "$play_queue does not exist or isn't a regular file." >&2
+        print "$play_queue does not exist or isn't a regular file." >&2
         exit 1
     fi
     while [[ -s $play_queue ]]; do
@@ -159,14 +159,14 @@ queue_mode()
         sed-i 1d $play_queue || fail2write
         play_song
         if [[ $pause = "TRUE" ]]; then
-            echo -n 'Press the any key to continue '
+            print -n 'Press the any key to continue '
             read -sk 1 nothing
-            echo
+            print
         fi
     done
     # This message only makes sense in queue mode.
     if [[ $qmode == "TRUE" ]]; then
-        echo "The queue is empty!"
+        print "The queue is empty!"
     fi
     exit 0
 }
@@ -177,7 +177,7 @@ enqueue_song()
         sed-i "$headcount i $song" $play_queue || fail2write
         ((headcount++))
     else
-        echo "$song" >> $play_queue || fail2write
+        print "$song" >> $play_queue || fail2write
     fi
 }
 
@@ -308,7 +308,7 @@ elif [[ $searchstring == "" ]]; then
     :
 elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
     # Or a regex is given but no need to refine it.
-    echo "Nothing found with that regexp." >&2
+    print "Nothing found with that regexp." >&2
     exit 1
 fi
 
@@ -343,6 +343,6 @@ done
 if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
 else
-    echo "$holdcount songs added to the play queue file."
+    print "$holdcount songs added to the play queue file."
     do_nothing="TRUE"
 fi
