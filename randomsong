@@ -7,6 +7,7 @@
 # more help.
 
 # Feature requests: play songs only once, add optional count in queue mode
+# Make it usable for other people.
 
 PATH=/bin:/usr/local/bin:/usr/bin
 setopt no_bare_glob_qual
@@ -36,11 +37,9 @@ esac
 
 alnum()
 {
-    if [[ $1 == "" ]] || [[ ${1//[0-9]/} != "" ]]; then
-        echo "That's not a valid integer!" >&2
+    if [[ $1 != <-> ]]; then
+        print "$1 is not a valid integer!" >&2
         exit 1
-    else
-        echo $1
     fi
 }
 
