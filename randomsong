@@ -40,6 +40,8 @@ alnum()
     if [[ $1 != <-> ]]; then
         print "$1 is not a valid integer!" >&2
         exit 1
+    else
+        print $1
     fi
 }
 
