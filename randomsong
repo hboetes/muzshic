@@ -187,7 +187,7 @@ enqueue_song()
 {
     readq
     if [[ $head == "TRUE" ]]; then
-        q=($song $q)
+        q[$headcount,0]=($song)
         ((headcount++))
     else
         q=($q $song)
