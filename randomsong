@@ -15,7 +15,8 @@ alias GREP='grep -i'
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
 # Number of track in the queue to print
-qtail=20
+qhist=10
+qfuture=20
 play_hist="/mp3/history"
 # Directory where you want to store your pidfile.
 prog="${0##*/}"
@@ -42,11 +43,6 @@ alnum()
     fi
 }
 
-strip_path()
-{
-    sed -e 's|.*/||' $1
-}
-
 print_green()
 {
     print '\e[32m'${1}'\e[00m'
@@ -59,20 +55,26 @@ print_yellow()
 
 print_song()
 {
-    song_nopath="${song##*/}"
+    song_nopath="${song:t}"
     clear
-    # Just in case the file does not exist.
-    touch $play_hist
-    tail -n10 $play_hist | strip_path
+    readh
+    if ((${#h} > $qhist)); then
+        pr=$qhist
+    else
+        pr=${#h}
+    fi
+    print -l ${h[-$pr,-1]:t}
     print_green $song_nopath
-    print $song_nopath >> $play_hist
+    h=($h $song_nopath)
+    writeh
     print "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print to much files in the queue
-    strip_path $play_queue | head -n$qtail
-    qlength=$(cat $play_queue | wc -l)
-    if ((qlength > qtail)); then
-        ((rest = qlength - qtail))
+    readq
+    print -l ${q[1,$qfuture]:t}
+    qlength=${#q}
+    if ((qlength > qfuture)); then
+        ((rest = qlength - qfuture))
         print_yellow "And $rest more tracks."
     fi
 }
@@ -101,22 +103,6 @@ play_song()
     mpv  -vo null -af volume=-10 "$song" -really-quiet || warn
 }
 
-# Not all sed versions support the -i option. This function is a
-# slight overkill. I actually wrote it for another program.
-sed-i()
-{
-    TMP1=$(mktemp sed-i.XXXXXXXXXX) || return 1
-    REGEX="$1"
-    shift
-    for i in $*; do
-        sed -e "$REGEX" "$i" > $TMP1
-        # Preserve permissions etc.
-        cat $TMP1 > "$i" || fail2write
-    done
-    rm $TMP1
-    unset TMP1
-}
-
 create_pid()
 {
     # First create the pid_dir in a safe way, if it doesn't exist.
@@ -143,21 +129,46 @@ remove_pid()
     fi
 }
 
-fail2write()
+readq()
 {
-    print "Can't write to ${play_queue}, check permissions." >&2
-    zshexit
+    if [[ ! -f $play_queue ]]; then
+        error "$play_queue does not exist or isn't a regular file."
+    fi
+    q=("${(@f)$(< $play_queue)}") || error "Can't read $play_queue"
+
+}
+
+writeq()
+{
+    print -l $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
+}
+
+# XXX Can we deduplicate this?
+readh()
+{
+    # We'll create this file if it doesn't exist
+    touch $play_hist
+    if [[ ! -f $play_hist ]]; then
+        error "$play_hist does not exist or isn't a regular file."
+    fi
+    h=("${(@f)$(< $play_hist)}") || error "Can't read $play_hist"
+
+}
+
+writeh()
+{
+    print -l $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
 }
 
 queue_mode()
 {
     create_pid
-    if [[ ! -f $play_queue ]]; then
-        error "$play_queue does not exist or isn't a regular file."
-    fi
     while [[ -s $play_queue ]]; do
-        song=$(head -n1 $play_queue)
-        sed-i 1d $play_queue || fail2write
+        # Keep reading the $queue_file, the user may edit it while $0 is running.
+        readq
+        song=${q[1]}
+        q[1]=()
+        writeq
         play_song
         if [[ $pause = "TRUE" ]]; then
             print -n 'Press the any key to continue '
@@ -174,12 +185,14 @@ queue_mode()
 
 enqueue_song()
 {
-    if [[ $head = "TRUE" ]]; then
-        sed-i "$headcount i $song" $play_queue || fail2write
+    readq
+    if [[ $head == "TRUE" ]]; then
+        q=($song $q)
         ((headcount++))
     else
-        print "$song" >> $play_queue || fail2write
+        q=($q $song)
     fi
+    writeq
 }
 
 zshexit()
@@ -335,7 +348,6 @@ while ((count-- > 0)); do
         (((rndm %= ${#allfiles}) += 1))
     fi
     song="$allfiles[$rndm]"
-    # Strip the path.
     enqueue_song
     # Remove the current song from the playlist.
     allfiles[$rndm]=()
