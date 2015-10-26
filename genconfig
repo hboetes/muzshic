@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+# Copyright 2015 Han Boetes <han@boetes.org>
+# For license info see http://unlicense.org/
+
+config="~/.config/muzshic/config"
+prog="${0:t}"
+
+if [[ -f $config ]]; then
+    echo "$prog: $config already exists. Exiting."
+    exit 0
+else
+    mkdir -m 700 -p ${config:h}
+    cat << EOF > $config
+# Set up how you want your music to be played.
+alias MEDIAPLAYER='mpv -vo null -af volume=-10 -really-quiet'
+# How do you want to search your music database
+alias GREP='grep -i'
+# Music directory: This can simply be a single path like:
+# database="/mp3"
+# Or anything else that zsh accepts
+database="/mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks}"
+playlist="/mp3/playlist.gz"
+play_queue="/mp3/queue"
+play_hist="/mp3/history"
+# Number of tracks to print from the history
+qhist=10
+# Number of tracks in the queue to print
+qfuture=20
+EOF
+    echo "$prog: Please edit and change the file $config to your liking."
+    exit 0
+fi
