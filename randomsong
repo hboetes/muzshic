@@ -358,6 +358,11 @@ done
 if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
 else
-    print "$holdcount songs added to the play queue file."
+    if [[ $head == "TRUE" ]]; then
+        WHERE=head
+    else
+        WHERE=bottom
+    fi
+    print "$holdcount songs added to the $WHERE of the play queue file."
     do_nothing="TRUE"
 fi
