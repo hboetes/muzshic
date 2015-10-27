@@ -18,7 +18,7 @@ MEDIAPLAYER="mpv -vo null -af volume=-10 -really-quiet"
 GREP="grep -i"
 # Music directory: This can simply be a single path like:
 # database="/mp3"
-# Or anything else that find and zsh accept.
+# Or anything else that find and zsh accept. Curly braces only work in arrays.
 database=(/mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks})
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
