@@ -6,7 +6,7 @@
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
-# Feature requests: play songs only once. Make it usable for other people.
+# Feature requests: play songs only once. make -c x work like expected
 
 # These vars may be interesting to change by other users.
 GREP="grep -i"
