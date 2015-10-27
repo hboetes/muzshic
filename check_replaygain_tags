@@ -5,9 +5,20 @@
 # produces the script "fixcommands" which I run to add those tags.
 rm -f dirlist fixcommands
 
+# Where the config file is stored.
+config="~/.config/muzshic/config"
+
+if [[ -r ${~config} ]]; then
+    source ${~config}
+else
+    print 'run genconfig to generate a configuration file.' >&2
+    exit 0
+fi
+
+
 dirs="$1"
-if [[ $dirs = "" ]]; then
-    dirs="/mp3/{4ad,HipHop,Jazz,Klassiek,Metal,Pop,Soundtracks}"
+if [[ $dirs == "" ]]; then
+    dirs=($database)
 fi
 
 find ${dirs} -name '*.flac'| \
@@ -24,13 +35,11 @@ if [ -r dirlist ]; then
         while read dir; do
             cat << EOF >> fixcommands
 cd "$dir"
-chmod 644 *.flac
 metaflac --add-replay-gain *.flac
-chmod 444 *.flac
 EOF
         done
     rm dirlist
-    echo "Hmmm, still some work to do..."
+    echo "Do examine and then run ./fixcommands"
 else
     echo "How boring! Nothing to be done."
 fi
