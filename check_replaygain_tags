@@ -18,10 +18,10 @@ fi
 
 dirs="$1"
 if [[ $dirs == "" ]]; then
-    dirs=($database)
+    dirs=${~database}
 fi
 
-find ${dirs} -name '*.flac'| \
+find ${~dirs} -name '*.flac'| \
     while read i; do
         if [ -z "$(metaflac --show-tag=REPLAYGAIN_TRACK_GAIN $i)" ]; then
             echo "$i has no replaygain info :-/"
