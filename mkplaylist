@@ -22,7 +22,11 @@ find ${~database} \
     -name '*.ogg'  -o \
     -name '*.flac' -o \
     -name '*.ape'  -o \
-    -name '*.mpc' | sort -n | gzip -c > $playlist.new
+    -name '*.aac'  -o \
+    -name '*.wav'  -o \
+    -name '*.m4a'  -o \
+    -name '*.opus'  -o \
+    -name '*.mpc' | sort -n | gzip -c > $playlist.new || exit 1
 if [ -e $playlist ]; then
     zdiff -u $playlist $playlist.new | colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
