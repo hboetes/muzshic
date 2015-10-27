@@ -12,16 +12,21 @@ Requests are welcome.
  * For the music player I recommend mpv, much nicer than mplayer
  * And diff and colordiff are nice to have as well.
 
+So...
+
+```zsh
+apt-get install zsh mpv diffutils colordiff
+```
+
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
 symlink them to somewhere in your PATH. I bet you will only really use
 mkplaylist and randomsong
 
 ## Getting started
-
 Run in this order:
- * genconfig: To create an initial config, and edit that file.
- * mkplaylist: to generate a "database"
- * randomsong: to listen to a random song
- * randomsong -L 'ride the lightning': to listen to the album Ride The Lightning.
- * randomsong -h: to see what else is possible.
+ * <code>genconfig</code>: to create an initial config, after that edit that file.
+ * <code>mkplaylist</code>: to generate a "database"
+ * <code>randomsong</code>: to listen to a random song
+ * <code>randomsong -L 'ride the lightning'</code>: to listen to the album Ride The Lightning.
+ * <code>randomsong -h</code>: to see what else is possible.
