@@ -80,9 +80,9 @@ print_song()
     print_green $song_nopath
     h=($h $song_nopath)
     writeh
-    # XXX These two lines are really just useful for me.
-    print "NP: $song_nopath" > ~/.nowplaying
-    rsync ~/.nowplaying han@boetes.org: &
+    if typeset -f local_print_song >& /dev/null; then
+        local_print_song
+    fi
     # Let's not print too many queued files
     print -l ${q[1,$qfuture]:t}
     qlength=${#q}
@@ -92,11 +92,12 @@ print_song()
     fi
 }
 
+# This function is executed when $0 quits.
 unprint_song()
 {
-    # XXX These two lines are really just useful for me.
-    : > ~/.nowplaying
-    rsync ~/.nowplaying han@boetes.org: &
+    if typeset -f local_print_song >& /dev/null; then
+        local_unprint_song
+    fi
 }
 
 warn()

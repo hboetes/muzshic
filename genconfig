@@ -27,6 +27,22 @@ play_hist="/mp3/history"
 qhist=10
 # Number of tracks in the queue to print
 qfuture=20
+
+# This function contains the local actions you want to have performed
+# when playing a song
+local_print_song()
+{
+    # print "NP: \$song_nopath" > ~/.nowplaying
+    # rsync ~/.nowplaying han@boetes.org: &
+}
+
+# This function contains the local actions you want to have performed
+# when all playing is finished
+local_unprint_song()
+{
+    # : > ~/.nowplaying
+    # rsync ~/.nowplaying han@boetes.org: &
+}
 EOF
     echo "$prog: Please edit and change the file $config to your liking."
     exit 0
