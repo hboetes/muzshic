@@ -13,7 +13,7 @@ if [[ -r ${~config} ]]; then
     source ${~config}
 else
     print 'run genconfig to generate a configuration file.' >&2
-    exit
+    exit 0
 fi
 
 find ${~database} \

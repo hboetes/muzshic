@@ -139,7 +139,7 @@ remove_pid()
     # Only remove the pidfile if it belongs to the current
     # process. This is redundant hopefully. :-}
     pid=$(< $pid_dir/pid)
-    if [[ $$ = $pid ]]; then
+    if [[ $$ == $pid ]]; then
         rm $pid_dir/pid
     fi
 }
