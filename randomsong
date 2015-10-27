@@ -57,12 +57,16 @@ alnum()
 
 print_green()
 {
-    print '\e[32m'${1}'\e[00m'
+    print -n '\e[32m'
+    print -nR ${1}
+    print '\e[00m'
 }
 
 print_yellow()
 {
-    print '\e[33m'${1}'\e[00m'
+    print -n '\e[33m'
+    print -nR ${1}
+    print '\e[00m'
 }
 
 print_song()
@@ -76,7 +80,7 @@ print_song()
         pr=${#h}
     fi
     # XXX This prints an empty line on empty history.
-    print -l ${h[-$pr,-1]:t}
+    print -Rl ${h[-$pr,-1]:t}
     print_green $song_nopath
     h=($h $song_nopath)
     writeh
@@ -84,7 +88,7 @@ print_song()
         local_print_song
     fi
     # Let's not print too many queued files
-    print -l ${q[1,$qfuture]:t}
+    print -Rl ${q[1,$qfuture]:t}
     qlength=${#q}
     if ((qlength > qfuture)); then
         ((rest = qlength - qfuture))
@@ -102,12 +106,12 @@ unprint_song()
 
 warn()
 {
-    print "$prog: Warning: Song $song not found!?" >&2
+    print -R "$prog: Warning: Song $song not found!?" >&2
 }
 
 error()
 {
-    print "$prog: $1" >&2
+    print -R "$prog: $1" >&2
     exit 1
 }
 
@@ -155,7 +159,7 @@ readq()
 
 writeq()
 {
-    print -l $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
+    print -Rl $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
 }
 
 # XXX Can we deduplicate this?
@@ -172,7 +176,7 @@ readh()
 
 writeh()
 {
-    print -l $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
+    print -Rl $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
 }
 
 queue_mode()
@@ -330,9 +334,9 @@ if [[ $get_list == "TRUE" ]]; then
         if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
-        selection=("${(@f)$(print -l $allfiles | ${=GREP} $searchstring)}")
+        selection=("${(@f)$(print -Rl $allfiles | ${=GREP} $searchstring)}")
         clear
-        print -l $selection
+        print -Rl $selection
         oldsearchstring="$searchstring"
         # vared is a very nifty function provided by zsh.
         vared -p 'What do you want to hear? Press enter if you are done. ' searchstring
@@ -345,7 +349,7 @@ elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
     # something.
     :
-elif ! allfiles=("${(@f)$(print -l $allfiles | ${=GREP} $searchstring)}"); then
+elif ! allfiles=("${(@f)$(print -Rl $allfiles | ${=GREP} $searchstring)}"); then
     # Or a regex is given but no need to refine it.
     do_nothing="TRUE"
     error "Nothing found with that regexp."
