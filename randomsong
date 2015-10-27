@@ -6,25 +6,31 @@
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
-# Feature requests: play songs only once, add optional count in queue mode
-# Make it usable for other people.
+# Feature requests: play songs only once. Make it usable for other people.
 
-PATH=/bin:/usr/local/bin:/usr/bin
-setopt no_bare_glob_qual
-alias GREP='grep -i'
+# These vars may be interesting to change by other users.
+GREP="grep -i"
+MEDIAPLAYER="mpv -vo null -af volume=-10 -really-quiet"
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
-# Number of track in the queue to print
-qhist=10
-qfuture=20
 play_hist="/mp3/history"
+# Number of tracks to print from the history.
+qhist=10
+# Number of tracks in the queue to print
+qfuture=20
+
+# These variable should not have to be touched by anyone.
+prog="${0:t}"
 # Directory where you want to store your pidfile.
-prog="${0##*/}"
-pid_dir="$TMPDIR/${prog}-$(id -u)"
+pid_dir="${TMPDIR:=/tmp}/${prog}-$(id -u)"
 # Number of songs to play, unless overriden later on.
 count=1
+setopt no_bare_glob_qual
+# Where the config file is stored.
+config="~/.config/muzshic/config"
 
-# Ugly code for portability.
+# Ugly code for portability. At least everyone knows why it's there,
+# the default zcat on Darwin is broken.
 OS=$(uname -s)
 case $OS in
     Darwin)
@@ -35,6 +41,12 @@ case $OS in
         ;;
 esac
 
+if [[ -r ${~config} ]]; then
+    source ${~config}
+else
+    print 'run genconfig to generate a configuration file.' >&2
+    exit 0
+fi
 
 alnum()
 {
@@ -63,10 +75,12 @@ print_song()
     else
         pr=${#h}
     fi
+    # XXX This prints an empty line on empty history.
     print -l ${h[-$pr,-1]:t}
     print_green $song_nopath
     h=($h $song_nopath)
     writeh
+    # XXX These two lines are really just useful for me.
     print "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print too many queued files
@@ -81,6 +95,7 @@ print_song()
 
 unprint_song()
 {
+    # XXX These two lines are really just useful for me.
     : > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
 }
@@ -99,8 +114,8 @@ error()
 play_song()
 {
     print_song
-    # "-vo null" disables displaying album art
-    mpv  -vo null -af volume=-10 "$song" -really-quiet || warn
+    # ${=foo} wordsplits a variable.
+    ${=MEDIAPLAYER} "$song" || warn
 }
 
 create_pid()
@@ -227,6 +242,15 @@ Usage: $prog -[ncaplLqxH] [grep regex]
 EOF
 }
 
+# Main
+if [[ ! -f $playlist ]]; then
+    error "$playlist not found. Don't forget to run mkplaylist"
+fi
+
+if [[ ! -s $playlist ]]; then
+    error "$playlist is empty. Double check your config and then run mkplaylist."
+fi
+
 # Parse command line arguments
 while  (($# > 0)); do
     case $1 in
@@ -296,17 +320,17 @@ done
 searchstring="$*"
 
 # This is a bit of zsh magic: array=("${(@f)$(command)}") it ensures a
-# list of files is turned into a proper array.
+# list of filenames with spaces and special chars is turned into a proper array.
 allfiles=("${(@f)$($ZCAT $playlist)}")
 
 # A regex has been given and we can refine that regex and see the
 # results.
-if [[ $get_list = "TRUE" ]]; then
+if [[ $get_list == "TRUE" ]]; then
     while :; do
         if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
-        selection=("${(@f)$(print -l $allfiles | GREP $searchstring)}")
+        selection=("${(@f)$(print -l $allfiles | ${=GREP} $searchstring)}")
         clear
         print -l $selection
         oldsearchstring="$searchstring"
@@ -321,13 +345,13 @@ elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
     # something.
     :
-elif ! allfiles=("${(@f)$(print -l $allfiles | GREP $searchstring)}"); then
+elif ! allfiles=("${(@f)$(print -l $allfiles | ${=GREP} $searchstring)}"); then
     # Or a regex is given but no need to refine it.
     do_nothing="TRUE"
     error "Nothing found with that regexp."
 fi
 
-if [[ $all = "TRUE" ]]; then
+if [[ $all == "TRUE" ]]; then
     count=${#allfiles}
 fi
 

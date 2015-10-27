@@ -4,14 +4,26 @@
 
 # This script generates a very simple database of all my music files.
 
-find /mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks}  \
+config="~/.config/muzshic/config"
+
+# To get error messages down the pipe.
+setopt pipefail
+
+if [[ -r ${~config} ]]; then
+    source ${~config}
+else
+    print 'run genconfig to generate a configuration file.' >&2
+    exit
+fi
+
+find ${~database} \
     -type f \
     -name '*.mp3'  -o \
     -name '*.ogg'  -o \
     -name '*.flac' -o \
     -name '*.ape'  -o \
-    -name '*.mpc' | sort -n |gzip -c > /mp3/new.playlist.gz
-if [ -e /mp3/playlist.gz ]; then
-    zdiff -u /mp3/playlist.gz /mp3/new.playlist.gz | colordiff | w3m
+    -name '*.mpc' | sort -n | gzip -c > $playlist.new
+if [ -e $playlist ]; then
+    zdiff -u $playlist $playlist.new | colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
-mv -f /mp3/new.playlist.gz /mp3/playlist.gz
+mv -f ${playlist}.new $playlist

@@ -6,19 +6,19 @@
 config="~/.config/muzshic/config"
 prog="${0:t}"
 
-if [[ -f $config ]]; then
+if [[ -f ${~config} ]]; then
     echo "$prog: $config already exists. Exiting."
     exit 0
 else
-    mkdir -m 700 -p ${config:h}
-    cat << EOF > $config
+    mkdir -m 700 -p ${~config:h}
+    cat << EOF > ${~config}
 # Set up how you want your music to be played.
-alias MEDIAPLAYER='mpv -vo null -af volume=-10 -really-quiet'
+MEDIAPLAYER="mpv -vo null -af volume=-10 -really-quiet"
 # How do you want to search your music database
-alias GREP='grep -i'
+GREP="grep -i"
 # Music directory: This can simply be a single path like:
 # database="/mp3"
-# Or anything else that zsh accepts
+# Or anything else that find and zsh accept.
 database="/mp3/{4ad,Jazz,HipHop,Metal,Klassiek,Pop,Soundtracks}"
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
