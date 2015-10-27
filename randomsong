@@ -84,7 +84,6 @@ print_song()
     print "NP: $song_nopath" > ~/.nowplaying
     rsync ~/.nowplaying han@boetes.org: &
     # Let's not print too many queued files
-    readq
     print -l ${q[1,$qfuture]:t}
     qlength=${#q}
     if ((qlength > qfuture)); then
