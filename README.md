@@ -1,7 +1,7 @@
 # muzshic
-Since I couldn't find the ideal music player I created my own scripts.
-At the moment they're just for me but I intend to make stuff more portable.
-Requests are welcome.
+Since I couldn't find the ideal playlist manager I created my own
+scripts.  At the moment they're just for me but I intend to make stuff
+more portable.  Requests are welcome.
 
 ## What does it look like?
 
