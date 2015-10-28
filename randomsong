@@ -162,10 +162,9 @@ writeq()
     print -Rl $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
 }
 
-# XXX Can we deduplicate this?
+# readh doesn't care if $play_hist exists, therefore we can't deduplicate it.
 readh()
 {
-    # We'll create this file if it doesn't exist
     touch $play_hist
     if [[ ! -f $play_hist ]]; then
         error "$play_hist does not exist or isn't a regular file."
