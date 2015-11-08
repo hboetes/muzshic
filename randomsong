@@ -188,7 +188,7 @@ queue_mode()
         q[1]=()
         writeq
         play_song
-        if [[ $pause = "TRUE" ]]; then
+        if [[ $pause == "TRUE" ]]; then
             print -n 'Press the any key to continue '
             read -sk 1 nothing
             print
@@ -340,7 +340,7 @@ if [[ $get_list == "TRUE" ]]; then
         oldsearchstring="$searchstring"
         # vared is a very nifty function provided by zsh.
         vared -p 'What do you want to hear? Press enter if you are done. ' searchstring
-        if [[ $oldsearchstring = $searchstring ]]; then
+        if [[ $oldsearchstring == $searchstring ]]; then
             allfiles=($selection)
             break
         fi
