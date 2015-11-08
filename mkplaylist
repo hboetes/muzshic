@@ -28,6 +28,7 @@ find ${~database} \
     -name '*.opus'  -o \
     -name '*.mpc' | sort -n | gzip -c > $playlist.new || exit 1
 if [ -e $playlist ]; then
-    zdiff -u $playlist $playlist.new | colordiff | less -R || print "Consider installing diff and colordiff" >&2
+    # If zdiff returns an error, it's because a difference has been found.
+    (zdiff -u $playlist $playlist.new || : )| colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
 mv -f ${playlist}.new $playlist
