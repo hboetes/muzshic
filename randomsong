@@ -323,7 +323,8 @@ done
 searchstring="$*"
 
 # This is a bit of zsh magic: array=("${(@f)$(command)}") it ensures a
-# list of filenames with spaces and special chars is turned into a proper array.
+# list of filenames with spaces and special chars is turned into a
+# proper array.
 allfiles=("${(@f)$($ZCAT $playlist)}")
 
 # A regex has been given and we can refine that regex and see the
