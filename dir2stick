@@ -15,7 +15,7 @@ wd=$PWD
 
 # alias normalize=normalize-audio
 
-for i in mplayer id3v2 normalize-audio lame; do
+for i in mpv id3v2 normalize-audio lame; do
     if ! which $i >& /dev/null; then
         echo "$i is not installed. I need it. Go get it!"
         end=true
@@ -73,7 +73,6 @@ if [[ $convert = true ]]; then
             lame -V3 -b 192 "$file" "${file%.wav}.mp3"
             rm "$file"
             # Set decent tags for the display.
-            # id3ed -n "$artistname" -a "$albumname" -k "$tracknumber" -s "$trackname" "$_"
             id3v2 -a "$artistname" -A "$albumname" -T "$tracknumber" -t "$trackname" "$_"
             # Since pioneer sorts files on timestamp -- yes really -- set a
             # timestamp which doesn't confuse the order.
