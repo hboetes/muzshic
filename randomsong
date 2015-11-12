@@ -75,13 +75,15 @@ print_song()
     song_nopath="${song:t}"
     clear
     readh
+
     # Incase we come from a trap we don't need to update the history
-    # file. We do need to read the queue again, it might have been
-    # updated.
+    # file.
     if [[ $1 != "nohistprint" ]]; then
         h=($h $song_nopath)
         writeh
     else
+        # We do need to read the queue again, it might have been
+        # updated.
         readq
     fi
 
@@ -90,9 +92,10 @@ print_song()
     else
         pr=${#h}
     fi
-
-    if (($pr >= 1)); then
-        print -Rl ${h[-$pr,-2]:t}
+    # To avoid the empty line on an empty history.
+    if ((pr > 1)); then
+        # Yes that line make real sense doesn't?
+        print -Rl ${h: -$pr:-1:t}
     fi
     print_green $song_nopath
 
