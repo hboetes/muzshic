@@ -162,12 +162,9 @@ remove_pid()
 
 readq()
 {
-    if [[ ! -f $play_queue ]]; then
-        # XXX something fucks up on empty q
-        warn "$play_queue does not exist or isn't a regular file."
+    if [[ -s $play_queue ]]; then
+        q=(${(@f)"$(< $play_queue)"}) || error "Can't read $play_queue"
     fi
-    q=(${(@f)"$(< $play_queue)"}) || error "Can't read $play_queue"
-
 }
 
 writeq()
