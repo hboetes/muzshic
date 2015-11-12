@@ -26,6 +26,7 @@ pid_dir="${TMPDIR:=/tmp}/${prog}-$(id -u)"
 # Number of songs to play, unless overriden later on.
 count=1
 setopt no_bare_glob_qual
+setopt trapsasync
 # Where the config file is stored.
 config="~/.config/muzshic/config"
 
@@ -74,16 +75,27 @@ print_song()
     song_nopath="${song:t}"
     clear
     readh
+    # Incase we come from a trap we don't need to update the history
+    # file. We do need to read the queue again, it might have been
+    # updated.
+    if [[ $1 != "nohistprint" ]]; then
+        h=($h $song_nopath)
+        writeh
+    else
+        readq
+    fi
+
     if ((${#h} > $qhist)); then
         pr=$qhist
     else
         pr=${#h}
     fi
-    # XXX This prints an empty line on empty history.
-    print -Rl ${h[-$pr,-1]:t}
+
+    if (($pr >= 1)); then
+        print -Rl ${h[-$pr,-2]:t}
+    fi
     print_green $song_nopath
-    h=($h $song_nopath)
-    writeh
+
     if typeset -f local_print_song >& /dev/null; then
         local_print_song
     fi
@@ -151,9 +163,10 @@ remove_pid()
 readq()
 {
     if [[ ! -f $play_queue ]]; then
-        error "$play_queue does not exist or isn't a regular file."
+        # XXX something fucks up on empty q
+        warn "$play_queue does not exist or isn't a regular file."
     fi
-    q=("${(@f)$(< $play_queue)}") || error "Can't read $play_queue"
+    q=(${(@f)"$(< $play_queue)"}) || error "Can't read $play_queue"
 
 }
 
@@ -165,17 +178,17 @@ writeq()
 # readh doesn't care if $play_hist exists, therefore we can't deduplicate it.
 readh()
 {
-    touch $play_hist
-    if [[ ! -f $play_hist ]]; then
-        error "$play_hist does not exist or isn't a regular file."
+    if [[ -s $play_hist ]]; then
+        h=(${(@f)"$(< $play_hist)"}) || error "Can't read $play_hist"
     fi
-    h=("${(@f)$(< $play_hist)}") || error "Can't read $play_hist"
-
 }
 
 writeh()
 {
-    print -Rl $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
+    # If the history is empty we would add a \n and create an off by 0.
+    if [[ ${#h} != 0 ]]; then
+        print -Rl $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
+    fi
 }
 
 queue_mode()
@@ -227,6 +240,12 @@ zshexit()
 TRAPINT()
 {
     zshexit
+}
+
+# So we can send signals to the running process to redraw the screen.
+TRAPUSR1()
+{
+    print_song "nohistprint"
 }
 
 show_help()
@@ -322,10 +341,10 @@ done
 # What are we going to play?
 searchstring="$*"
 
-# This is a bit of zsh magic: array=("${(@f)$(command)}") it ensures a
+# This is a bit of zsh magic: array=(${(@f)"$(command)"}) it ensures a
 # list of filenames with spaces and special chars is turned into a
 # proper array.
-allfiles=("${(@f)$($ZCAT $playlist)}")
+allfiles=(${(@f)"$($ZCAT $playlist)"})
 
 # A regex has been given and we can refine that regex and see the
 # results.
@@ -334,7 +353,7 @@ if [[ $get_list == "TRUE" ]]; then
         if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
-        selection=("${(@f)$(print -Rl $allfiles | ${=GREP} $searchstring)}")
+        selection=(${(@f)"$(print -Rl $allfiles | ${=GREP} $searchstring)"})
         clear
         print -Rl $selection
         oldsearchstring="$searchstring"
@@ -349,7 +368,7 @@ elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
     # something.
     :
-elif ! allfiles=("${(@f)$(print -Rl $allfiles | ${=GREP} $searchstring)}"); then
+elif ! allfiles=(${(@f)"$(print -Rl $allfiles | ${=GREP} $searchstring)"}); then
     # Or a regex is given but no need to refine it.
     do_nothing="TRUE"
     error "Nothing found with that regexp."
@@ -393,4 +412,6 @@ else
     fi
     print "$holdcount songs added to the $WHERE of the play queue file."
     do_nothing="TRUE"
+    # Send sigusr1 signal to refresh the screen.
+    kill -USR1 $(< $pid_dir/pid)
 fi
