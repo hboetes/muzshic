@@ -198,6 +198,10 @@ queue_mode()
         # Keep reading the $queue_file, the user may edit it while $0 is running.
         readq
         song=${q[1]}
+        if [[ $song == "" ]]; then
+            echo "The play queue is empty."
+            exit 0
+        fi
         q[1]=()
         writeq
         play_song
