@@ -103,7 +103,7 @@ print_song()
         local_print_song
     fi
     # Let's not print too many queued files
-    print -Rl ${q[1,$qfuture]:t}
+    print -Rl ${q: 0:$qfuture:t}
     qlength=${#q}
     if ((qlength > qfuture)); then
         ((rest = qlength - qfuture))
