@@ -1,13 +1,12 @@
 # muzshic
 Since I couldn't find the ideal playlist manager I created my own
-scripts.  At the moment they're just for me but I intend to make stuff
-more portable.  Requests are welcome.
+scripts.  Requests are welcome.
 
 ## What does it look like?
 
 ![screenshot](/screenshot/screenshot.png?raw=true "That's what it looks like!")
 
-## dependencies
+## Dependencies
  * zsh, no I am not going to rewrite this program to work with bash.
  * For the music player I recommend mpv, much nicer than mplayer
  * And diff and colordiff are nice to have as well.
