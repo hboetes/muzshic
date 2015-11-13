@@ -256,15 +256,15 @@ show_help()
 {
     cat << EOF
 Usage: $prog -[ncaplLqxH] [grep regex]
-  -n play tracks in non-random order
-  -c x ; add x tracks to the queue
-  -a add all tracks selected by regex.
-  -p pause after each track.
-  -l select regex with finetuning.
+  -H add songs to the head of $play_queue
   -L = -l -a -n
+  -a add all tracks selected by regex.
+  -c x ; add x tracks to the queue
+  -l select regex with finetuning.
+  -n play tracks in non-random order
+  -p pause after each track.
   -q play all songs from $play_queue
   -x clear the queue
-  -H add songs to the head of $play_queue
 EOF
 }
 
