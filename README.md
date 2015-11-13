@@ -19,8 +19,8 @@ apt-get install zsh mpv diffutils colordiff
 
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
-symlink them to somewhere in your PATH. I bet you will only really use
-mkplaylist and randomsong.
+symlink the scripts to somewhere in your PATH. I bet you will only
+really use mkplaylist and randomsong.
 
 ## Getting started
 Run in this order:
