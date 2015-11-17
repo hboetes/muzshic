@@ -13,7 +13,7 @@ else
     mkdir -m 700 -p ${~config:h}
     cat << EOF > ${~config}
 # Set up how you want your music to be played.
-MEDIAPLAYER="mpv -vo null -af volume=-10 -really-quiet"
+MEDIAPLAYER="mpv -vo null -af volume=-10 --msg-level all=no,statusline=v"
 # How do you want to search your music database
 GREP="grep -i"
 # Music directory: This can simply be a single path like:
