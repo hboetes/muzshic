@@ -102,9 +102,13 @@ print_song()
     if typeset -f local_print_song >& /dev/null; then
         local_print_song
     fi
-    # Let's not print too many queued files
-    print -Rl ${q: 0:$qfuture:t}
+
     qlength=${#q}
+    if ((qlength < 1)); then
+        return
+    fi
+    print -Rl ${q: 0:$qfuture:t}
+    # Let's not print too many queued files
     if ((qlength > qfuture)); then
         ((rest = qlength - qfuture))
         print_yellow "And $rest more tracks."
