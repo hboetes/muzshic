@@ -52,7 +52,7 @@ done
 
 cp *.mp3 $TEMPDIR > /dev/null 2>&1 || nothing=true
 
-if [[ $convert = false ]] && [[ $nothing = true ]]; then
+if [[ $convert = false ]] && [[ $nothing == true ]]; then
     rmdir $TEMPDIR
     echo "Nothing to do here!" >&2
     exit 1
