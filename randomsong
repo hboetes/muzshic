@@ -88,9 +88,9 @@ print_song()
     fi
 
     if ((${#h} > $qhist)); then
-        pr=$qhist
+        local pr=$qhist
     else
-        pr=${#h}
+        local pr=${#h}
     fi
     # To avoid the empty line on an empty history.
     if ((pr > 1)); then
@@ -103,7 +103,7 @@ print_song()
         local_print_song
     fi
 
-    qlength=${#q}
+    local qlength=${#q}
     if ((qlength < 1)); then
         return
     fi
@@ -145,7 +145,7 @@ create_pid()
 {
     # First create the pid_dir in a safe way, if it doesn't exist.
     if [[ ! -d $pid_dir ]]; then
-        pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || error "Can't create tmp dir."
+        local pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || error "Can't create tmp dir."
         mv $pid_tmpdir $pid_dir || error "Can't create pid dir."
     fi
 
@@ -161,7 +161,7 @@ remove_pid()
 {
     # Only remove the pidfile if it belongs to the current
     # process. This is redundant hopefully. :-}
-    pid=$(< $pid_dir/pid)
+    local pid=$(< $pid_dir/pid)
     if [[ $$ == $pid ]]; then
         rm $pid_dir/pid
     fi
@@ -171,6 +171,8 @@ readq()
 {
     if [[ -s $play_queue ]]; then
         q=(${(@f)"$(< $play_queue)"}) || error "Can't read $play_queue"
+    else
+        return 1
     fi
 }
 
@@ -198,13 +200,12 @@ writeh()
 queue_mode()
 {
     create_pid
-    while [[ -s $play_queue ]]; do
-        # Keep reading the $queue_file, the user may edit it while $0 is running.
-        readq
+    # Keep reading the $queue_file, the user may edit it while $0 is running.
+    while readq; do
         song=${q[1]}
+        # This happens if there is only whitespace in the queue
         if [[ $song == "" ]]; then
-            echo "The play queue is empty."
-            exit 0
+            break
         fi
         q[1]=()
         writeq
