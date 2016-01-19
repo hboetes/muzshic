@@ -72,14 +72,13 @@ print_yellow()
 
 print_song()
 {
-    song_nopath="${song:t}"
     clear
     readh
 
     # Incase we come from a trap we don't need to update the history
     # file.
     if [[ $1 != "nohistprint" ]]; then
-        h=($h $song_nopath)
+        h=($h $song)
         writeh
     else
         # We do need to read the queue again, it might have been
@@ -94,10 +93,10 @@ print_song()
     fi
     # To avoid the empty line on an empty history.
     if ((pr > 1)); then
-        # Yes that line make real sense doesn't?
+        # Yes that line makes real sense, doesn't it?
         print -Rl ${h: -$pr:-1:t}
     fi
-    print_green $song_nopath
+    print_green ${song:t}
 
     if typeset -f local_print_song >& /dev/null; then
         local_print_song
@@ -367,7 +366,7 @@ if [[ $get_list == "TRUE" ]]; then
         print -Rl $selection
         oldsearchstring="$searchstring"
         # vared is a very nifty function provided by zsh.
-        vared -p 'What do you want to hear? Press enter if you are done. ' searchstring
+        vared -p 'What do you want to hear? Press enter again if you are done. ' searchstring
         if [[ $oldsearchstring == $searchstring ]]; then
             allfiles=($selection)
             break

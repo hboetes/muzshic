@@ -32,7 +32,7 @@ qfuture=20
 # when playing a song
 local_print_song()
 {
-    # print "NP: \$song_nopath" > ~/.nowplaying
+    # print "NP: \${song:t}" > ~/.nowplaying
     # rsync ~/.nowplaying han@boetes.org: &
 }
 

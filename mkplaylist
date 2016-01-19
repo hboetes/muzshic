@@ -26,6 +26,7 @@ find ${~database} \
     -name '*.wav'  -o \
     -name '*.m4a'  -o \
     -name '*.opus'  -o \
+    -name '*.dff'  -o \
     -name '*.mpc' | sort -n | gzip -c > $playlist.new || exit 1
 if [ -e $playlist ]; then
     # If zdiff returns an error, it's because a difference has been found.
