@@ -16,16 +16,16 @@ playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
 play_hist="/mp3/history"
 # Number of tracks to print from the history.
-qhist=10
+integer qhist=10
 # Number of tracks in the queue to print
-qfuture=20
+integer qfuture=20
 
-# These variable should not have to be touched by anyone.
+# These variables should not have to be touched by anyone.
 prog="${0:t}"
 # Directory where you want to store your pidfile.
 pid_dir="${TMPDIR:=/tmp}/${prog}-$(id -u)"
 # Number of songs to play, unless overriden later on.
-count=1
+integer count=1
 setopt no_bare_glob_qual
 setopt trapsasync
 # Where the config file is stored.
@@ -46,7 +46,7 @@ esac
 if [[ -r ${~config} ]]; then
     source ${~config}
 else
-    print 'run genconfig to generate a configuration file.' >&2
+    echo 'run genconfig to generate a configuration file.' >&2
     exit 0
 fi
 
@@ -59,16 +59,17 @@ alnum()
 
 print_green()
 {
-    print -n '\e[32m'
-    print -nR ${1}
-    print '\e[00m'
+    echo '\e[32m'${1}'\e[00m'
 }
 
 print_yellow()
 {
-    print -n '\e[33m'
-    print -nR ${1}
-    print '\e[00m'
+    echo '\e[33m'${1}'\e[00m'
+}
+
+print_red()
+{
+    echo '\e[31m'${1}'\e[00m'
 }
 
 print_song()
@@ -95,7 +96,7 @@ print_song()
     # To avoid the empty line on an empty history.
     if ((pr > 1)); then
         # Yes that line makes real sense, doesn't it?
-        print -Rl ${h: -$pr:-1:t}
+        print -rl -- ${h: -$pr:-1:t}
     fi
     print_green ${song:t}
 
@@ -107,7 +108,7 @@ print_song()
     if ((qlength < 1)); then
         return
     fi
-    print -Rl ${q: 0:$qfuture:t}
+    print -rl -- ${q: 0:$qfuture:t}
     # Let's not print too many queued files
     if ((qlength > qfuture)); then
         ((rest = qlength - qfuture))
@@ -123,22 +124,25 @@ unprint_song()
     fi
 }
 
-warn()
-{
-    print -R "$prog: Warning: Song $song not found!?" >&2
-}
-
 error()
 {
-    print -R "$prog: $1" >&2
+    print_red "$prog: $1" >&2
     exit 1
 }
 
 play_song()
 {
     print_song
+    if [[ ! -e "$song" ]]; then
+        echo "$prog: $song not found." >&2
+        sleep 3
+        return
+    fi
     # ${=foo} wordsplits a variable.
-    ${=MEDIAPLAYER} "$song" || warn
+    if ! ${=MEDIAPLAYER} "$song"; then
+        echo "$prog: exiting, something is going wrong here." >&2
+        exit $?
+    fi
 }
 
 create_pid()
@@ -153,7 +157,7 @@ create_pid()
         error "is already running."
     else
         # And then create a pid_file
-        print $$ > $pid_dir/pid
+        echo $$ > $pid_dir/pid
     fi
 }
 
@@ -178,7 +182,7 @@ readq()
 
 writeq()
 {
-    print -Rl $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
+    print -rl -- $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
 }
 
 # readh doesn't care if $play_hist exists, therefore we can't deduplicate it.
@@ -193,7 +197,7 @@ writeh()
 {
     # If the history is empty we would add a \n and create an off by 0.
     if [[ ${#h} != 0 ]]; then
-        print -Rl $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
+        print -rl -- $h > $play_hist || error "Can't write to ${play_hist}, check permissions."
     fi
 }
 
@@ -211,14 +215,14 @@ queue_mode()
         writeq
         play_song
         if [[ $pause == "TRUE" ]]; then
-            print -n 'Press the any key to continue '
+            echo -n 'Press the any key to continue '
             read -sk 1 nothing
-            print
+            echo
         fi
     done
     # This message only makes sense in queue mode.
     if [[ $qmode == "TRUE" ]]; then
-        print "The queue is empty!"
+        echo "The queue is empty!"
     fi
     exit 0
 }
@@ -335,7 +339,7 @@ while  (($# > 0)); do
             shift 1
             ;;
         -*)
-            print "Unknown option: $1" >&2
+            echo "Unknown option: $1" >&2
             show_help
             do_nothing="TRUE"
             exit 1
@@ -362,9 +366,9 @@ if [[ $get_list == "TRUE" ]]; then
         if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
-        selection=(${(@f)"$(print -Rl $allfiles | ${=GREP} $searchstring)"})
+        selection=(${(@f)"$(print -rl -- $allfiles | ${=GREP} $searchstring)"})
         clear
-        print -Rl $selection
+        print -rl -- $selection
         oldsearchstring="$searchstring"
         # vared is a very nifty function provided by zsh.
         vared -p 'What do you want to hear? Press enter again if you are done. ' searchstring
@@ -377,7 +381,7 @@ elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
     # something.
     :
-elif ! allfiles=(${(@f)"$(print -Rl $allfiles | ${=GREP} $searchstring)"}); then
+elif ! allfiles=(${(@f)"$(print -rl -- $allfiles | ${=GREP} $searchstring)"}); then
     # Or a regex is given but no need to refine it.
     do_nothing="TRUE"
     error "Nothing found with that regexp."
@@ -391,7 +395,7 @@ holdcount="$count"
 # Get through our list.
 while ((count-- > 0)); do
     if [[ ${#allfiles} == 0 ]]; then
-        print 'No more files to play.'
+        echo 'No more files to play.'
         break
     fi
     if [[ $nonrandom == "TRUE" ]]; then
@@ -419,7 +423,7 @@ else
     else
         WHERE=bottom
     fi
-    print "$holdcount songs added to the $WHERE of the play queue file."
+    echo "$holdcount songs added to the $WHERE of the play queue file."
     do_nothing="TRUE"
     # Send sigusr1 signal to refresh the screen.
     kill -USR1 $(< $pid_dir/pid)
