@@ -1,12 +1,13 @@
 #!/bin/zsh
 
-# Copyright 2015 Han Boetes <han@boetes.org>
+# Copyright 2015-2016 Han Boetes <han@boetes.org>
 # For license info see http://unlicense.org/
 
 # This script plays songs, random or non-random, see the -h output for
 # more help.
 
-# Feature requests: play songs only once. make -c x work like expected
+# Feature requests: Play songs only once until all songs have been
+# played. Use a real DB?
 
 # These vars may be interesting to change by other users.
 GREP="grep -i"
