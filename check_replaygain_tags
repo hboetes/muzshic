@@ -38,6 +38,7 @@ if [ -r dirlist ]; then
 EOF
         done
     rm dirlist
+    chmod +x fixcommands
     echo "Do examine and then run ./fixcommands"
 else
     echo "How boring! Nothing to be done."
