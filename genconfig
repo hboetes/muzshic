@@ -12,8 +12,6 @@ if [[ -f ${~config} ]]; then
 else
     mkdir -m 700 -p ${~config:h}
     cat << EOF > ${~config}
-# Set up how you want your music to be played.
-MEDIAPLAYER="mpv -vo null -af volume=-10 --msg-level all=no,statusline=v"
 # How do you want to search your music database
 GREP="grep -i"
 # Music directory: This can simply be a single path like:
@@ -27,6 +25,24 @@ play_hist="/mp3/history"
 qhist=10
 # Number of tracks in the queue to print
 qfuture=20
+
+# Function for the mediaplayer.  You simply plug in your fancy high
+# end device and check the directory: "/dev/snd/by-id" for whatever
+# udev made out of it and then use "mpv --audio-device help" to see
+# how mpv calls it. Ah yes, make sure pulse isn't running, it kills
+# audio quality.
+
+mediaplayer()
+{
+    if [ -L /dev/snd/by-id/usb-Logitech_Logitech_G933_Gaming_Wireless_Headset-00 ]; then
+        device="alsa/default:CARD=H"
+    elif [ -L /dev/snd/by-id/usb-Creative_Technology_USB_Sound_Blaster_HD_000000te-00 ]; then
+        device="alsa/default:CARD=HD"
+    else
+        device="auto"
+    fi
+    mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "$@"
+}
 
 # This function contains the local actions you want to have performed
 # when playing a song

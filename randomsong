@@ -11,7 +11,6 @@
 
 # These vars may be interesting to change by other users.
 GREP="grep -i"
-MEDIAPLAYER="mpv -vo null -af volume=-10 -really-quiet"
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
 play_hist="/mp3/history"
@@ -30,6 +29,13 @@ setopt no_bare_glob_qual
 setopt trapsasync
 # Where the config file is stored.
 config="~/.config/muzshic/config"
+
+# Function for the mediaplayer.
+mediaplayer()
+{
+    mpv -vo null -af volume=-10 --msg-level all=no,statusline=v "$@"
+}
+
 
 # Ugly code for portability. At least everyone knows why it's there,
 # the default zcat on Darwin is broken.
@@ -139,7 +145,7 @@ play_song()
         return
     fi
     # ${=foo} wordsplits a variable.
-    if ! ${=MEDIAPLAYER} "$song"; then
+    if ! mediaplayer "$song"; then
         echo "$prog: exiting, something is going wrong here." >&2
         exit $?
     fi
