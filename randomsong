@@ -144,10 +144,9 @@ play_song()
         sleep 3
         return
     fi
-    # ${=foo} wordsplits a variable.
     if ! mediaplayer "$song"; then
         echo "$prog: exiting, something is going wrong here." >&2
-        exit $?
+        zshexit $?
     fi
 }
 
