@@ -150,6 +150,13 @@ play_song()
     fi
 }
 
+check_pid()
+{
+    # The manpage says this option is probably not useful. I disagree.
+    # It's ideal to remove stale pid files.
+    pgrep -F $pid_dir/pid >& /dev/null || rm -f $pid_dir/pid
+}
+
 create_pid()
 {
     # First create the pid_dir in a safe way, if it doesn't exist.
@@ -417,6 +424,9 @@ while ((count-- > 0)); do
     # Remove the current song from the playlist.
     allfiles[$rndm]=()
 done
+
+# Just making sure $0 is really running as it should.
+check_pid
 
 # Probably you want to start playing music if you get here and $0
 # isn't running.
