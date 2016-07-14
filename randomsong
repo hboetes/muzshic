@@ -125,7 +125,7 @@ print_song()
 # This function is executed when $0 quits.
 unprint_song()
 {
-    if typeset -f local_print_song >& /dev/null; then
+    if typeset -f local_unprint_song >& /dev/null; then
         local_unprint_song
     fi
 }
