@@ -34,7 +34,7 @@ if [ -r dirlist ]; then
     sort -i dirlist | uniq | \
         while read dir; do
             cat << EOF >> fixcommands
-(cd "$dir" && metaflac --add-replay-gain *.flac)
+(cd "$dir" && metaflac --add-replay-gain *.flac;chmod 644 *.flac)
 EOF
         done
     rm dirlist
