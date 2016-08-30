@@ -56,6 +56,12 @@ else
     exit 0
 fi
 
+refresh()
+{
+    # Send sigusr1 signal to refresh the screen.
+    kill -USR1 $(< $pid_dir/pid)
+}
+
 alnum()
 {
     if [[ $1 != <-> ]]; then
@@ -153,11 +159,23 @@ play_song()
     fi
 }
 
+pause()
+{
+    # Add some whitespace so it overwrites the mpv output
+    echo 'Press the any key to continue                         '
+    read -sk 1 nothing
+}
+
 check_pid()
 {
     # The manpage says this option is probably not useful. I disagree.
     # It's ideal to remove stale pid files.
-    pgrep -F $pid_dir/pid >& /dev/null || rm -f $pid_dir/pid
+    if pgrep -F $pid_dir/pid >& /dev/null; then
+        return 0
+    else
+        rm -f $pid_dir/pid
+        return 1
+    fi
 }
 
 create_pid()
@@ -226,13 +244,25 @@ queue_mode()
         if [[ $song == "" ]]; then
             break
         fi
+        # Remove the playing song from the queue array.
         q[1]=()
         writeq
-        play_song
+
+        case $song in
+            QUIT)
+                exit
+                ;;
+            PAUSE)
+                pause
+                ;;
+            *)
+                play_song
+                ;;
+        esac
+
+
         if [[ $pause == "TRUE" ]]; then
-            echo -n 'Press the any key to continue '
-            read -sk 1 nothing
-            echo
+            pause
         fi
     done
     # This message only makes sense in queue mode.
@@ -287,6 +317,7 @@ Usage: $prog -[ncaplLqxH] [grep regex]
   -l select regex with finetuning.
   -n play tracks in non-random order
   -p pause after each track.
+  -P disable pause after each track.
   -q play all songs from $play_queue
   -x clear the queue
 EOF
@@ -326,6 +357,10 @@ while  (($# > 0)); do
             ;;
         -p)
             pause="TRUE"
+            shift 1
+            ;;
+        -P)
+            pause="FALSE"
             shift 1
             ;;
         -l)
@@ -418,7 +453,7 @@ while ((count-- > 0)); do
     else
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
-        rndm=$(od -vAn -N4 -tu4 < /dev/urandom)
+        rndm=$(od -vAn -N8 -tu8 < /dev/random)
         # Mind the off by one.
         (((rndm %= ${#allfiles}) += 1))
     fi
@@ -435,14 +470,28 @@ check_pid
 # isn't running.
 if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
+elif [[ $pause == "TRUE" ]]; then
+    song="PAUSE"
+    head="TRUE"
+    headcount=1
+    do_nothing="TRUE"
+    enqueue_song
+    refresh
+    echo "After this song $prog will take a break."
 else
     if [[ $head == "TRUE" ]]; then
-        WHERE=head
+        WHERE="head"
     else
-        WHERE=bottom
+        WHERE="bottom"
     fi
     echo "$holdcount songs added to the $WHERE of the play queue file."
     do_nothing="TRUE"
-    # Send sigusr1 signal to refresh the screen.
-    kill -USR1 $(< $pid_dir/pid)
+    # *Cough*ugly*cough*
+    if [[ $pause == "TRUE" ]]; then
+        song="PAUSE"
+        head="TRUE"
+        headcount=1
+        enqueue_song
+    fi
+    refresh
 fi
