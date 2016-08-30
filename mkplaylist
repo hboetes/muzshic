@@ -6,15 +6,14 @@
 
 config="~/.config/muzshic/config"
 
-# To get error messages down the pipe.
-setopt pipefail
-
 if [[ -r ${~config} ]]; then
     source ${~config}
 else
     print 'run genconfig to generate a configuration file.' >&2
     exit 0
 fi
+
+touch $playlist.new || exit 1
 
 find ${~database} \
     -type f \
@@ -24,12 +23,14 @@ find ${~database} \
     -name '*.ape'  -o \
     -name '*.aac'  -o \
     -name '*.wav'  -o \
-    -name '*.m4a'  -o \
-    -name '*.opus'  -o \
+    -name '*.m4a' -o \
+    -name '*.mkv' -o \
+    -name '*.opus' -o \
     -name '*.dff'  -o \
-    -name '*.mpc' | sort -n | gzip -c > $playlist.new || exit 1
+    -name '*.mpc' | sort -n | gzip -c > $playlist.new
 if [ -e $playlist ]; then
     # If zdiff returns an error, it's because a difference has been found.
     (zdiff -u $playlist $playlist.new || : )| colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
 mv -f ${playlist}.new $playlist
+zgrep -E '\.(wav|ape|m4a)$' $playlist

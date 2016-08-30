@@ -21,20 +21,25 @@ if [[ $dirs == "" ]]; then
     dirs=${~database}
 fi
 
-find ${~dirs} -name '*.flac'| \
-    while read i; do
-        if [ -z "$(metaflac --show-tag=REPLAYGAIN_TRACK_GAIN $i)" ]; then
-            echo "$i has no replaygain info :-/"
-            echo "${i%/*}" >> dirlist
-        fi
-    done
+echo 'Finding all directories'
+for d in $(find ${~dirs} -type d); do
+    echo -n "$d                               " # xxx
+    echo -ne '\r'
+    find $d -maxdepth 1 -type f -name '*.flac' |\
+        while read i; do
+            if [ -z "$(metaflac --show-tag=REPLAYGAIN_TRACK_GAIN $i)" ]; then
+                echo "$i has no replaygain info :-/"
+                echo "${i%/*}" >> dirlist
+            fi
+        done
+done
 
 if [ -r dirlist ]; then
     echo '#!/bin/sh -x' > fixcommands
     sort -i dirlist | uniq | \
         while read dir; do
             cat << EOF >> fixcommands
-(cd "$dir" && metaflac --add-replay-gain *.flac;chmod 644 *.flac)
+(cd "$dir" && chmod 644 *.flac && metaflac --add-replay-gain *.flac && metaflac --remove --block-type=PICTURE *.flac)
 EOF
         done
     rm dirlist
