@@ -453,7 +453,7 @@ while ((count-- > 0)); do
     else
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
-        rndm=$(od -vAn -N8 -tu8 < /dev/random)
+        rndm=$(od -vAn -N4 -tu4 < /dev/random)
         # Mind the off by one.
         (((rndm %= ${#allfiles}) += 1))
     fi
