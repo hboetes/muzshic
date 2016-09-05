@@ -34,14 +34,16 @@ qfuture=20
 
 mediaplayer()
 {
-    if [ -L /dev/snd/by-id/usb-Logitech_Logitech_G933_Gaming_Wireless_Headset-00 ]; then
-        device="alsa/default:CARD=H"
-    elif [ -L /dev/snd/by-id/usb-Creative_Technology_USB_Sound_Blaster_HD_000000te-00 ]; then
-        device="alsa/default:CARD=HD"
-    else
-        device="auto"
-    fi
-    mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "$@"
+    # This is what I use at home, you'll need an up to date mpv version for it to work.
+    # if [ -L /dev/snd/by-id/usb-Logitech_Logitech_G933_Gaming_Wireless_Headset-00 ]; then
+    #     device="alsa/default:CARD=H"
+    # elif [ -L /dev/snd/by-id/usb-Creative_Technology_USB_Sound_Blaster_HD_000000te-00 ]; then
+    #     device="alsa/default:CARD=HD"
+    # else
+    #     device="auto"
+    # fi
+    # mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "$@"
+    mpv --really-quiet "$@"
 }
 
 # This function contains the local actions you want to have performed
