@@ -26,9 +26,11 @@ echo 'Finding all directories'
 for d in $(find ${~dirs} -type d); do
     echo -n "$d                               " # xxx
     echo -ne '\r'
-    find $d -maxdepth 1 -type f -name '*.flac' |\
+    #
+    find $d -maxdepth 1 -type f \
+         -name '*.mp3'  -o -name '*.dff'  -o  -name '*.mpc' -name '*.m4a' -o -name '*.ogg'  -o  -name '*.flac' -o -name '*.ape' -o -name '*.aac' -name '*.opus' -o -name '*.wav' |\
         while read i; do
-            if [ -z "$(metaflac --show-tag=REPLAYGAIN_TRACK_GAIN $i)" ]; then
+            if ! bs1770gain -l "$i" 2>&1 | /bin/grep -q REPLAYGAIN_ALBUM_ ; then
                 echo "$i has no replaygain info :-/"
                 echo "${i%/*}" >> dirlist
             fi
@@ -36,11 +38,28 @@ for d in $(find ${~dirs} -type d); do
 done
 
 if [ -r dirlist ]; then
-    echo '#!/bin/sh -x' > fixcommands
+    cat << EOF > fixcommands
+#!/bin/zsh -x
+
+foobar()
+{
+    rsync -avP *.mp3 ~/mp3
+    cd ~/mp3
+    bs1770gain -o foo *.mp3 || return
+    chmod 644 foo/*
+    mv -f foo/* .
+    rmdir foo
+    cd -
+    rsync -avP ~/mp3/ .
+    rm ~/mp3/*.mp3
+    chmod 644 *.mp3
+}
+
+EOF
     sort -i dirlist | uniq | \
         while read dir; do
             cat << EOF >> fixcommands
-(cd "$dir" && chmod 644 *.flac && metaflac --add-replay-gain *.flac && metaflac --remove --block-type=PICTURE *.flac)
+(cd "$dir" && foobar)
 EOF
         done
     rm dirlist
