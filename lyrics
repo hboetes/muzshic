@@ -1,0 +1,16 @@
+#!/bin/zsh
+for i in *flac; do
+    if [[ ! -z "$(metaflac --show-tag=lyrics "$i")" ]];then
+        continue
+    fi
+    if [[ ! -e "${i%.flac}.txt" ]]; then
+        artist="$(metaflac --show-tag=artist "$i"|cut -d'=' -f2)"
+        album="$(metaflac --show-tag=album "$i"|cut -d'=' -f2)"
+        title="$(metaflac --show-tag=title "$i"|cut -d'=' -f2)"
+        glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${i%.flac}.txt"
+    fi
+    if [[ -e "${i%.flac}.txt" ]]; then
+        metaflac --set-tag-from-file="lyrics=${i%.flac}.txt" "$i"
+    fi
+    rm "${i%.flac}.txt"
+done

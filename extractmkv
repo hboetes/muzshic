@@ -1,0 +1,7 @@
+#!/bin/sh
+ofmt=$(ffmpeg -i *' 01 '*.mkv -vn -acodec copy outputfile 2>&1 | awk '/Audio/ {print $4}'|sed -e 's|,||')
+for i in *.mkv; do
+    ffmpeg -i "$i" -vn -acodec copy "${i%mkv}$ofmt"
+done
+rm *.mkv
+nice -n 19 bs1770gain -o foo *; mv -f foo/* .; rmdir foo

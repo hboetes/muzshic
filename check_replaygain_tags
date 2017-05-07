@@ -3,7 +3,8 @@
 
 # This script locates any flac file without replaygain tags and
 # produces the script "fixcommands" which I run to add those tags.
-rm -f dirlist fixcommands
+rm -i dirlist
+rm -i fixcommands
 
 # Where the config file is stored.
 config="~/.config/muzshic/config"

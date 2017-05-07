@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+artist="$(exiftool -p '$ARTIST' *01*)"
+album="$(exiftool -p '$ALBUM' *01*)"
+
+if glyrc cover --artist "$artist" --album "$album" --write 'folder.:format:'; then
+    convert folder.png folder.jpg
+    rm folder.png
+fi
