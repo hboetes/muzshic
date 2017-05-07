@@ -29,6 +29,21 @@ setopt no_bare_glob_qual
 setopt trapsasync
 # Where the config file is stored.
 config="~/.config/muzshic/config"
+# Debug level 1 prints debug messages.
+debug=1
+
+debug()
+{
+    if [[ $debug == 1 ]]; then
+        print_yellow "$prog: $1" >&2
+    fi
+}
+
+error()
+{
+    print_red "$prog: $1" >&2
+    exit 1
+}
 
 # Function for the mediaplayer.
 mediaplayer()
@@ -136,12 +151,6 @@ unprint_song()
     fi
 }
 
-error()
-{
-    print_red "$prog: $1" >&2
-    exit 1
-}
-
 play_song()
 {
     print_song
@@ -182,7 +191,7 @@ create_pid()
 {
     # First create the pid_dir in a safe way, if it doesn't exist.
     if [[ ! -d $pid_dir ]]; then
-        local pid_tmpdir=$(mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || error "Can't create tmp dir."
+        local pid_tmpdir=$(umask 077; mktemp -d $pid_dir.XXXXXXXXXXXXXXXXX) || error "Can't create tmp dir."
         mv $pid_tmpdir $pid_dir || error "Can't create pid dir."
     fi
 
@@ -200,7 +209,7 @@ remove_pid()
     # process. This is redundant hopefully. :-}
     local pid=$(< $pid_dir/pid)
     if [[ $$ == $pid ]]; then
-        rm $pid_dir/pid
+        rm -f $pid_dir/pid
     fi
 }
 
@@ -332,6 +341,17 @@ if [[ ! -s $playlist ]]; then
     error "$playlist is empty. Double check your config and then run mkplaylist."
 fi
 
+# Check if we have a 64 or 32 bit processor. Important for random
+# arithmetic function.
+if grep -q 'flags.* lm ' < /proc/cpuinfo; then
+    pt=4
+    debug '64 bit processor found'
+else
+    pt=2
+    debug  '32 bit processor found'
+fi
+
+
 # Parse command line arguments
 while  (($# > 0)); do
     case $1 in
@@ -453,7 +473,7 @@ while ((count-- > 0)); do
     else
         # The Pseudorandom $RANDOM is not random enough. All songs
         # from the same few artists gets annoying real quick.
-        rndm=$(od -vAn -N4 -tu4 < /dev/random)
+        rndm=$(od -vAn -N$pt -tu$pt < /dev/urandom)
         # Mind the off by one.
         (((rndm %= ${#allfiles}) += 1))
     fi
