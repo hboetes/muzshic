@@ -30,21 +30,17 @@ if [[ $1 == -f ]]; then
     fi
 fi
 
+# Generate the search options for find from the supported filetypes 
+for i in $filetypes; do
+    st="$st -name '*'.$i -o"
+done
+# remove trailing -o
+st=${st% -o}
 
-time find ${~database} \
-    -type f \
-    -name '*.mp3'  -o \
-    -name '*.ogg'  -o \
-    -name '*.flac' -o \
-    -name '*.ape'  -o \
-    -name '*.aac'  -o \
-    -name '*.wav'  -o \
-    -name '*.m4a' -o \
-    -name '*.mkv' -o \
-    -name '*.opus' -o \
-    -name '*.dff'  -o \
-    -name '*.webm' -o \
-    -name '*.mpc' | sort -n | gzip -c > $playlist.new
+set -x
+time eval find ${~database} -type f  $st | sort -n | gzip -c > $playlist.new
+
+set +x
 
 if [[ $1 == -f ]]; then
     zcat $playlist $playlist.new | sort -n | gzip -c > $playlist.newest
