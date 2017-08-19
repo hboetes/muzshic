@@ -1,16 +1,60 @@
 #!/bin/zsh
-for i in *flac; do
-    if [[ ! -z "$(metaflac --show-tag=lyrics "$i")" ]];then
-        continue
-    fi
-    if [[ ! -e "${i%.flac}.txt" ]]; then
-        artist="$(metaflac --show-tag=artist "$i"|cut -d'=' -f2)"
-        album="$(metaflac --show-tag=album "$i"|cut -d'=' -f2)"
-        title="$(metaflac --show-tag=title "$i"|cut -d'=' -f2)"
-        glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${i%.flac}.txt"
-    fi
-    if [[ -e "${i%.flac}.txt" ]]; then
-        metaflac --set-tag-from-file="lyrics=${i%.flac}.txt" "$i"
-    fi
-    rm "${i%.flac}.txt"
-done
+# Copyright 2017 Han Boetes <han@boetes.org>
+# For license info see http://unlicense.org/
+
+readtag ()
+{
+    # if [[ $recurse == true ]]; then
+    #     exiftool -q -q -p '$'$1 $2 >& /dev/null
+    # else
+    exiftool -q -q -p '$'$1 $2
+    # fi
+}
+
+get_lyrics()
+{ 
+    artist="$(readtag artist $1)"
+    album="$(readtag album $1)"
+    title="$(readtag title $1)"
+    glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${1}.txt" || echo 'Instrumental' > "${1}.txt"
+}
+
+write_flac_lyrics()
+{
+    metaflac --set-tag-from-file="lyrics=${1}.txt" "$1"
+    rm "${1}.txt"
+}
+
+write_mp3_lyrics()
+{
+    lyrics_mp3 "$i"
+    rm "${1}.txt"
+}
+
+
+case $1 in
+    *.flac)
+        if [[ -z $(readtag lyrics "$1") ]]; then
+            get_lyrics "$1"
+            write_flac_lyrics "$1"
+        fi
+        readtag lyrics "$1"
+        ;;
+    *.mp3)
+        if [[ -z $(readtag lyrics "$1") ]]; then
+            get_lyrics "$1"
+            write_mp3_lyrics "$1"
+        fi
+        readtag lyrics "$1"
+        ;;
+    '')
+        export recurse=true
+        for i in *.(mp3|flac); do
+            $0 $i
+        done
+        ;;
+    *)
+        echo "So far I can do flac and mp3 files."
+        exit 1
+        ;;
+esac
