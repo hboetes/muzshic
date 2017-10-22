@@ -1,25 +1,25 @@
 #!/bin/zsh
 # for i in 4ad HipHop Jazz Klassiek Metal Pop Soundtracks
-cd /mp3
 
-for i in $(find 4ad Metal Pop Jazz HipHip Soundtracks -type d); do
-    echo $i
-    cd "/mp3/$i"
-    ls folder.jpg >& /dev/null && continue
-    ls .nca  >& /dev/null && continue
-    ls *' 101 '*  >& /dev/null || continue
-    artist="$(exiftool -p '$ARTIST' *101*)"
-    album="$(exiftool -p '$ALBUM' *101*)"
+for i in $(find . -type d); do
+    (
+        cd "$i"
+        ls cover.jpg >& /dev/null && continue
+        ls .nca  >& /dev/null && continue
+        ls *' 01 '*  >& /dev/null || continue
+        artist="$(exiftool -p '$ARTIST' *' 01 '*)"
+        album="$(exiftool -p '$ALBUM' *' 01 '*)"
 
-    if glyrc cover --artist "$artist" --album "$album" --write 'folder.:format:'; then
-        if [[ -e folder.png ]]; then
-            convert folder.png folder.jpg
-            rm folder.png
+        if glyrc cover --artist "$artist" --album "$album" --write 'cover.:format:'; then
+            if [[ -e cover.png ]]; then
+                convert cover.png cover.jpg
+                rm cover.png
+            fi
+            if [[ -e cover.jpeg ]]; then
+                mv cover.jpeg cover.jpg
+            fi
+        else
+            touch .nca
         fi
-        if [[ -e folder.jpeg ]]; then
-            mv folder.jpeg folder.jpg
-        fi
-    else
-        touch .nca
-    fi
+    )
 done

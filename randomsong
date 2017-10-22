@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Copyright 2015-2016 Han Boetes <han@boetes.org>
+# Copyright 2015-2017 Han Boetes <han@boetes.org>
 # For license info see http://unlicense.org/
 
 # This script plays songs, random or non-random, see the -h output for
@@ -30,7 +30,7 @@ setopt trapsasync
 # Where the config file is stored.
 config="~/.config/muzshic/config"
 # Debug level 1 prints debug messages.
-debug=1
+debug=
 
 debug()
 {
@@ -99,6 +99,21 @@ print_red()
     echo '\e[31m'${1}'\e[00m'
 }
 
+show_lyrics()
+{
+    command -v exiftool >& /dev/null || return
+    exiftool -q -q -p '$LYRICS' $song > $pid_dir/lyrics
+    if [[ -s $pid_dir/lyrics ]]; then
+        if [[ $TERM == screen* ]]; then
+            tmux split-window -h "less $pid_dir/lyrics"
+        else
+            terminator -e "less $pid_dir/lyrics" >& /dev/null &
+        fi
+    else
+        echo '-1'
+    fi
+}
+
 print_song()
 {
     clear
@@ -154,6 +169,7 @@ unprint_song()
 play_song()
 {
     print_song
+    pid_lyrics=$(show_lyrics)
     if [[ ! -e "$song" ]]; then
         echo "$prog: $song not found." >&2
         sleep 3
@@ -166,6 +182,7 @@ play_song()
         echo "$prog: exiting, something is going wrong here." >&2
         zshexit $?
     fi
+    pkill -x -f "less $pid_dir/lyrics" >& /dev/null
 }
 
 pause()
