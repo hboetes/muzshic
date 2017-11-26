@@ -13,7 +13,7 @@ from mutagen.id3 import ID3, TIT2, TALB, TPE1, TPE2, COMM, USLT, TCOM, TCON, TDR
 TEXT_ENCODING = 'utf8'
 
 fname = sys.argv[1] # os.path.join(fpath, fn)
-if fname.lower().endswith('.mp3'):    
+if fname.lower().endswith('.mp3'):
     lyrics = None
     lyrfname = fname + '.txt'
 
@@ -31,9 +31,9 @@ if fname.lower().endswith('.mp3'):
     #         break
     #     except:
     #         pass
-            
+
     # create ID3 tag if not exists
-    try: 
+    try:
         tags = ID3(fname)
     except ID3NoHeaderError:
         print "Adding ID3 header;",
@@ -44,14 +44,14 @@ if fname.lower().endswith('.mp3'):
         print "Removing Lyrics."
         tags.delall(u"USLT::'en'")
         tags.save(fname)
-        
+
     #tags.add(USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics))
-    # apparently the description is important when more than one 
+    # apparently the description is important when more than one
     # USLT frames are present
     tags[u"USLT::'eng'"] = (USLT(encoding=3, lang=u'eng', desc=u'desc', text=lyrics))
     sys.stdout.write('Added USLT frame to ')
     sys.stdout.write(fname)
     sys.stdout.flush()
-    
+
     tags.save(fname)
     print ' Saved'
