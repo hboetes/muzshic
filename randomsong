@@ -338,14 +338,16 @@ show_help()
 Usage: $prog -[ncaplLqxH] [grep regex]
   -H add songs to the head of $play_queue
   -L = -l -a -n
+  -G = -l -g -n
   -a add all tracks selected by regex.
+  -g add all tracks selected by word search.
   -c x ; add x tracks to the queue
-  -l select regex with finetuning.
-  -n play tracks in non-random order
+  -l select regex with fine-tuning.
+  -n play tracks in non-random order.
   -p pause after each track.
   -P disable pause after each track.
-  -q play all songs from $play_queue
-  -x clear the queue
+  -q play all songs from ${play_queue}.
+  -x clear the queue.
 EOF
 }
 
@@ -404,9 +406,20 @@ while  (($# > 0)); do
             get_list="TRUE"
             shift 1
             ;;
+        -g)
+            google="TRUE"
+            shift 1
+            ;;
         -L)
             get_list="TRUE"
             all="TRUE"
+            nonrandom="TRUE"
+            shift 1
+            ;;
+        -G)
+            get_list="TRUE"
+            all="TRUE"
+            google="TRUE"
             nonrandom="TRUE"
             shift 1
             ;;
@@ -453,7 +466,14 @@ if [[ $get_list == "TRUE" ]]; then
         if [[ $searchstring == "" ]]; then
             searchstring='.'
         fi
-        selection=(${(@f)"$(print -rl -- $allfiles | ${=GREP} $searchstring)"})
+        if [[ $google == "TRUE" ]]; then
+            selection=($allfiles)
+            for i in ${=searchstring}; do
+                selection=(${(@f)"$(print -rl -- $selection | ${=GREP} $i)"})
+            done
+        else
+            selection=(${(@f)"$(print -rl -- $allfiles | ${=GREP} $searchstring)"})
+        fi
         clear
         print -rl -- $selection
         oldsearchstring="$searchstring"
