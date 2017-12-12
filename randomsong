@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# Copyright 2015-2017 Han Boetes <han@boetes.org>
+# Copyright 2015-2018 Han Boetes <han@boetes.org>
 # For license info see http://unlicense.org/
 
 # This script plays songs, random or non-random, see the -h output for
