@@ -51,6 +51,21 @@ mediaplayer()
     mpv -vo null -af volume=-10 --msg-level all=no,statusline=v "$@"
 }
 
+show_lyrics()
+{
+    command -v exiftool >& /dev/null || return
+    exiftool -q -q -p '$LYRICS' $song > $pid_dir/lyrics
+    if [[ -s $pid_dir/lyrics ]]; then
+        if [[ $TERM == screen* ]]; then
+            tmux split-window -h "less $pid_dir/lyrics"
+            tmux select-pane -t 0
+        else
+            terminator -e "less $pid_dir/lyrics" >& /dev/null &
+        fi
+    else
+        echo '-1'
+    fi
+}
 
 # Ugly code for portability. At least everyone knows why it's there,
 # the default zcat on Darwin is broken.
@@ -97,21 +112,6 @@ print_yellow()
 print_red()
 {
     echo '\e[31m'${1}'\e[00m'
-}
-
-show_lyrics()
-{
-    command -v exiftool >& /dev/null || return
-    exiftool -q -q -p '$LYRICS' $song > $pid_dir/lyrics
-    if [[ -s $pid_dir/lyrics ]]; then
-        if [[ $TERM == screen* ]]; then
-            tmux split-window -h "less $pid_dir/lyrics"
-        else
-            terminator -e "less $pid_dir/lyrics" >& /dev/null &
-        fi
-    else
-        echo '-1'
-    fi
 }
 
 print_song()
