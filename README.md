@@ -10,12 +10,19 @@ scripts.  Requests are welcome.
  * zsh, no I am not going to rewrite this program to work with bash.
  * For the music player I recommend mpv, much nicer than mplayer
  * And diff and colordiff are nice to have as well.
+ * tmux of course, it also does nice things if you have lyrics tags.
+ * exiftool, to display lyrics
+ * glyrc, to download cover images and lyrics
 
 So...
 
 ```zsh
-apt-get install zsh mpv diffutils colordiff
+apt-get install zsh mpv diffutils colordiff tmux libimage-exiftool-perl glyrc
 ```
+
+# Other software that's great to have:
+ * puddletag, to fix your tags and filenames.
+ * bs1770gain, to set all your replaygain tags (make sure you removed all image tags from your files, though)
 
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
