@@ -183,6 +183,8 @@ play_song()
         zshexit $?
     fi
     pkill -x -f "less $pid_dir/lyrics" >& /dev/null
+    # Source the config to pick up changes.
+    source ${~config}
 }
 
 pause()
