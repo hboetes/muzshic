@@ -17,7 +17,7 @@ scripts.  Requests are welcome.
 So...
 
 ```zsh
-apt-get install zsh mpv diffutils colordiff tmux libimage-exiftool-perl glyrc
+% apt-get install zsh mpv diffutils colordiff tmux libimage-exiftool-perl glyrc
 ```
 
 # Other software that's great to have:
@@ -27,7 +27,7 @@ apt-get install zsh mpv diffutils colordiff tmux libimage-exiftool-perl glyrc
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
 symlink the scripts to somewhere in your PATH. I bet you will only
-really use mkplaylist and randomsong.
+really use mkplaylist and randomsong regularly.
 
 ## Getting started
 Run in this order:
