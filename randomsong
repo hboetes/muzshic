@@ -338,18 +338,20 @@ show_help()
 {
     cat << EOF
 Usage: $prog -[ncaplLqxH] [grep regex]
-  -H add songs to the head of $play_queue
-  -L = -l -a -n
-  -G = -l -g -n
   -a add all tracks selected by regex.
   -g add all tracks selected by word search.
   -c x ; add x tracks to the queue
-  -l select regex with fine-tuning.
+  -d select all tracks from current directory
+  -l select with fine-tuning.
   -n play tracks in non-random order.
-  -p pause after each track.
-  -P disable pause after each track.
+  -p pause after next track.
   -q play all songs from ${play_queue}.
   -x clear the queue.
+  -H add songs to the head of $play_queue
+  -L = -l -a -n
+  -G = -l -g -n
+  -D = -x -d
+  -e edit the queue file with ${VISUAL:=vi}
 EOF
 }
 
@@ -396,8 +398,23 @@ while  (($# > 0)); do
             count=$2
             shift 2
             ;;
+        -d)
+            playpwd="TRUE"
+            all="TRUE"
+            nonrandom="TRUE"
+            shift $#
+            ;;
+        -D)
+            playpwd="TRUE"
+            all="TRUE"
+            nonrandom="TRUE"
+            : > $play_queue
+            shift $#
+            ;;
         -p)
             pause="TRUE"
+            # While using this option we usually don't want to add another track.
+            count=0
             shift 1
             ;;
         -P)
@@ -434,7 +451,9 @@ while  (($# > 0)); do
             : > $play_queue
             shift 1
             ;;
-
+        -e)
+            exec ${VISUAL:=vi} $play_queue
+            ;;
         -H)
             head="TRUE"
             headcount=1
@@ -486,6 +505,8 @@ if [[ $get_list == "TRUE" ]]; then
             break
         fi
     done
+elif [[ $playpwd == "TRUE" ]]; then
+    allfiles=(${(@f)"$(print -rl -- $allfiles | ${=GREP} "$PWD")"})
 elif [[ $searchstring == "" ]]; then
     # No searchstring given, that's a valid option too. Just play
     # something.
