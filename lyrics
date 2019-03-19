@@ -1,6 +1,17 @@
 #!/bin/zsh
-# Copyright 2017 Han Boetes <han@boetes.org>
+# Copyright 2017-2018 Han Boetes <han@boetes.org>
 # For license info see http://unlicense.org/
+
+# Check for dependencies.
+for i in exiftool metaflac glyrc; do
+    if ! command -v $i >& /dev/null; then
+        faileddep=true
+        echo "I need $i, please install it."
+    fi
+done
+if [[ $faileddep == true ]]; then
+    exit 1
+fi
 
 readtag ()
 {
