@@ -45,7 +45,7 @@ mediaplayer()
     # else
     #     device="auto"
     # fi
-    # mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "$@"
+    # mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "\$@"
     mpv --really-quiet "$@"
 }
 
