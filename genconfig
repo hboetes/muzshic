@@ -46,7 +46,7 @@ mediaplayer()
     #     device="auto"
     # fi
     # mpv --audio-device $device -vo null -af volume=-10:replaygain-album,equalizer=0:0:0:0:0:0:0:0:0:0 --msg-level all=no,statusline=v "\$@"
-    mpv --really-quiet "$@"
+    mpv --really-quiet "\$@"
 }
 
 # This function contains the local actions you want to have performed
