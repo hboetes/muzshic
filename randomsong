@@ -243,6 +243,7 @@ readq()
 
 writeq()
 {
+    mkdir -p ${play_queue%/*} || error "Can't create directory ${play_queue%/*}, check permissions."
     print -rl -- $q > $play_queue || error "Can't write to ${play_queue}, check permissions."
 }
 

@@ -23,7 +23,7 @@ readtag ()
 }
 
 get_lyrics()
-{ 
+{
     artist="$(readtag artist $1)"
     album="$(readtag album $1)"
     title="$(readtag title $1)"

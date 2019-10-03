@@ -30,7 +30,7 @@ if [[ $1 == -f ]]; then
     fi
 fi
 
-# Generate the search options for find from the supported filetypes 
+# Generate the search options for find from the supported filetypes
 for i in $filetypes; do
     st="$st -name '*'.$i -o"
 done
