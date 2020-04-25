@@ -1,0 +1,5 @@
+#!/bin/zsh
+for i in *.ape; do
+    echo "Converting $i"
+    ffmpeg -loglevel 24 -i "$i" "${i%ape}flac"
+done

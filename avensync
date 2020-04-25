@@ -1,0 +1,54 @@
+#!/opt/bin/zsh
+
+s=/volume1/music
+
+t=/volumeUSB1/usbshare/mp3
+d=/volume1/music/avensismusic
+fl=/volume1/music/avensifl
+
+# t=/volume1/downloads/avensitest
+# d=/volume1/music/avensismusic_test
+# fl=/volume1/music/avensifl_test
+
+rs="/opt/bin/rsync --modify-window=1 -rtv --progress --no-p --no-g --delete --files-from=$fl"
+
+cd $s
+
+for i in $(< $d); do
+    if [[ ! -d $i ]]; then
+        if nd=$(find ${i%/*} -mindepth 1 -type d -iname "*${i##*/}"); then
+            echo "trying to replace $i with $nd"
+            sed -i "s|$i|$nd|" $d
+        else
+            local stop=yes
+        fi
+    fi
+done
+if [[ $stop == "yes" ]]; then
+    echo "First fix these entries please."
+    exit 0
+fi
+
+if [[ ! -e $fl ]] || [[ $d -nt $fl ]]; then
+    echo "Generating new filelist"
+    find $(< $d ) -maxdepth 1 -type f > $fl
+fi
+
+if ! mount | grep -q /volumeUSB1/usbshare; then
+    echo "gimme that SD card!" >&2
+    exit 1
+fi
+
+${=rs} $s $t/
+
+echo "Cleanup? [y/N]"
+read -rsk 1 answer
+if [[ $answer != y ]]; then
+    exit 0
+fi
+find $t -type f -printf '%P\n'| while read i; do
+    if ! fgrep -q "$i" $fl; then
+	rm -v $t/$i
+    fi
+done
+find $t -depth -type d -empty -exec rmdir -v "{}" \;

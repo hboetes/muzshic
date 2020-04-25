@@ -1,0 +1,11 @@
+#!/bin/zsh
+for i in mp3 mpc; do
+    st="$st -name '*'.$i -o"
+done
+
+# remove trailing -o
+st=${st% -o}
+set -x
+cd /mp3/4ad/Elend/1997-WeepingNights
+eval find /mp3/4ad/Elend/1997-WeepingNights -type f $st
+# find /mp3/4ad/Elend/1997-WeepingNights -type f  -name '*.mp3' -o -name '*.mpc' -o -name '*.flac'

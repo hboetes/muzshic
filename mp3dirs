@@ -1,0 +1,13 @@
+#!/bin/zsh
+
+getdirs()
+{
+    zgrep 'mp3$' playlist.gz| while read line; do
+        line=${line#*/}
+        line=${line#*/}
+        line=${line#*/}
+        line=${line%/*}
+        echo ${line//\// }
+    done
+}
+getdirs|uniq

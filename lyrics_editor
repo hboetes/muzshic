@@ -1,0 +1,42 @@
+#!/bin/zsh
+# Copyright 2017-2018 Han Boetes <han@boetes.org>
+# For license info see http://unlicense.org/
+
+# Check for dependencies.
+for i in exiftool metaflac glyrc; do
+    if ! command -v $i >& /dev/null; then
+        faileddep=true
+        echo "I need $i, please install it."
+    fi
+done
+
+if [[ $faileddep == true ]]; then
+    exit 1
+fi
+
+searchstring="$1"
+
+readtag ()
+{
+    exiftool -q -q -p '$LYRICS' $1 > "${1}.txt"
+}
+
+write_flac_lyrics()
+{
+    metaflac --remove-tag=lyrics "$1"
+    metaflac --set-tag-from-file="lyrics=${1}.txt" "$1"
+}
+
+for i in *.(mp3|flac); do
+    readtag "$i"
+    if [[ -z $searchstring ]]; then
+        $EDITOR "${i}.txt"
+    else
+        sed -i -n "/$searchstring/q;p" "${i}.txt"
+    fi
+    # Strip whitespace
+    emacs --batch "${i}.txt" --eval '(delete-trailing-whitespace)' -f save-buffer
+
+    write_flac_lyrics "$i"
+    rm -f -- "${i}.txt{,~}"
+done

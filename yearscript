@@ -1,0 +1,21 @@
+#!/bin/zsh
+for i in *;do
+    # if [[ ! -f $i/*01*flac ]]; then
+    #     continue
+    # fi
+    if ((${i%-*} > 1600 && ${i%-*} < 2100 )); then
+        continue
+    fi
+    year=$(metaflac --show-tag=YEAR $i/*01*flac)
+    year=${year#YEAR=}
+    if ((year > 1600 && year < 2100)); then
+        mv $i $year-$i
+        continue
+    fi
+    date=$(metaflac --show-tag=DATE $i/*01*flac)
+    date=${date#DATE=}
+    if ((date > 1600 && date < 2100)); then
+        mv $i $date-$i
+        continue
+    fi
+done
