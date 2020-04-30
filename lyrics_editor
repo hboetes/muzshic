@@ -34,8 +34,11 @@ for i in *.(mp3|flac); do
     else
         sed -i -n "/$searchstring/q;p" "${i}.txt"
     fi
-    # Strip whitespace
-    emacs --batch "${i}.txt" --eval '(delete-trailing-whitespace)' -f save-buffer
+    # Strip trailing whitespace.
+    sed -i 's|[[:space:]]*$||' "${i}.txt"
+    dos2unix "${i}.txt"
+    # remove leading and trailing empty lines.
+    sed -i -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba' "${i}.txt"
 
     write_flac_lyrics "$i"
     rm -f -- "${i}.txt{,~}"
