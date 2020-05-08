@@ -1,14 +1,43 @@
 #!/bin/zsh
 # for i in 4ad HipHop Jazz Klassiek Metal Pop Soundtracks
 
-for i in $(find . -type d); do
+source ~/.config/muzshic/config
+
+# check for glyrc and exiftool
+
+for i in $filetypes; do
+    fo="$fo -iname \"*.$i\" -o"
+done
+# remove trailing -o
+fo=${fo% -o}
+
+find . -type d -print0 | while read -d '' -r dir; do
     (
-        cd "$i"
-        ls cover.jpg >& /dev/null && continue
-        ls .nca  >& /dev/null && continue
-        ls *' 01 '*  >& /dev/null || continue
-        artist="$(exiftool -p '$ARTIST' *' 01 '*)"
-        album="$(exiftool -p '$ALBUM' *' 01 '*)"
+        # VA directories don't belong to an album.
+        if [[ "${dir##*/}" == "VA" ]]; then
+            continue
+        fi
+        cd "$dir"
+        pwd
+        [[ -f cover.jpg ]] && continue
+        [[ -f .nca ]] && continue
+        track=$(eval "find . -maxdepth 1 -type f $fo|head -n1")
+        if [[ -z $track ]]; then
+             # echo "No music files found in $PWD" >&2
+             continue
+        fi
+        artist="$(exiftool -p '$ARTIST' $track)"
+        if [[ -z $artist ]]; then
+            echo "$0: No artist defined" >&2
+            continue
+        fi
+        artist=${artist//\&}
+        album="$(exiftool -p '$ALBUM' $track)" || continue
+        if [[ -z $album ]]; then
+            echo "$0: No album defined" >&2
+            continue
+        fi
+        album=${album//\&}
 
         if glyrc cover --artist "$artist" --album "$album" --write 'cover.:format:'; then
             if [[ -e cover.png ]]; then
