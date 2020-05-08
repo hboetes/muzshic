@@ -17,7 +17,7 @@ else
     exit 0
 fi
 
-touch $playlist.new || exit 1
+touch $playlist.new.gz || exit 1
 
 if [[ $1 == -f ]]; then
     database=($(find ${~database}  -maxdepth 1 -mindepth 1 -type d -mmin -60))
@@ -44,17 +44,17 @@ if command -v pv >& /dev/null; then
 fi
 
 # set -x
-time eval find ${~database} -type f  $st $progress | sort -n | gzip -c > $playlist.new
+time eval find ${~database} -type f  $st $progress | sort -n | gzip -c > $playlist.new.gz
 
 # set +x
 
 if [[ $1 == -f ]]; then
-    zcat $playlist $playlist.new | sort -n | gzip -c > $playlist.newest
-    mv $playlist.newest $playlist.new
+    zcat $playlist $playlist.new.gz | sort -n | gzip -c > $playlist.newest.gz
+    mv $playlist.newest.gz $playlist.new.gz
 fi
 if [ -e $playlist ]; then
     # If zdiff returns an error, it's because a difference has been found.
-    (zdiff -u $playlist $playlist.new || : )| colordiff | less -R || print "Consider installing diff and colordiff" >&2
+    (zdiff -u $playlist $playlist.new.gz || : )| colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
-mv -f ${playlist}.new $playlist
+mv -f ${playlist}.new.gz $playlist
 zgrep -E '\.(wav|ape)$' $playlist

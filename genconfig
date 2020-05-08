@@ -19,6 +19,7 @@ GREP="grep -i"
 # Or anything else that find and zsh accept. Curly braces only work in arrays.
 database="/mp3/(4ad|Jazz|HipHop|Metal|Klassiek|Pop|Soundtracks)"
 filetypes=(mp3 ogg flac ape aac wav m4a mkv mpc opus webm dff)
+# Make sure it ends in .gz
 playlist="/mp3/playlist.gz"
 play_queue="/mp3/queue"
 play_hist="/mp3/history"
