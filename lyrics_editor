@@ -27,6 +27,14 @@ write_flac_lyrics()
     metaflac --set-tag-from-file="lyrics=${1}.txt" "$1"
 }
 
+write_mp3_lyrics()
+{
+    eyeD3 --remove-all-lyrics "$1"
+    eyeD3 --add-lyrics "${1}.txt" "$1"
+}
+
+
+
 for i in *.(mp3|flac); do
     readtag "$i"
     if [[ -z $searchstring ]]; then
@@ -40,6 +48,13 @@ for i in *.(mp3|flac); do
     # remove leading and trailing empty lines.
     sed -i -e :a -e '/./,$!d;/^\n*$/{$d;N;};/\n$/ba' "${i}.txt"
 
-    write_flac_lyrics "$i"
-    rm -f -- "${i}.txt{,~}"
+    case $i in
+        *.flac)
+            write_flac_lyrics "$i"
+            ;;
+        *.mp3)
+            write_mp3_lyrics "$i"
+            ;;
+    esac
+    rm -f -- "${i}.txt"
 done

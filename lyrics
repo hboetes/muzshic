@@ -1,5 +1,5 @@
 #!/bin/zsh
-# Copyright 2017-2018 Han Boetes <han@boetes.org>
+# Copyright 2017-2020 Han Boetes <han@boetes.org>
 # For license info see http://unlicense.org/
 
 # Check for dependencies.
@@ -9,6 +9,7 @@ for i in exiftool metaflac glyrc; do
         echo "I need $i, please install it."
     fi
 done
+
 if [[ $faileddep == true ]]; then
     exit 1
 fi
@@ -38,7 +39,7 @@ write_flac_lyrics()
 
 write_mp3_lyrics()
 {
-    lyrics_mp3 "$i"
+    eyeD3 --add-lyrics "${1}.txt" "$1"
     rm "${1}.txt"
 }
 
