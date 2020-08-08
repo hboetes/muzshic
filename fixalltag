@@ -1,0 +1,34 @@
+#!/bin/zsh
+for i in log cue m3u nfo sfv m3u ffp accurip rtf CUE; do
+    find . -maxdepth 1 -type f -name "*.$i" -delete
+done
+
+mid3v2 -D *.flac
+
+while :; do
+    if ! pgrep -f 'puddletag ' >& /dev/null; then
+        break
+    fi
+    echo -n '.'
+    sleep 5
+done
+
+cd .
+
+DISPLAY=:0.0 puddletag .
+# DISPLAY=:0.0 /usr/pkgmk/source/puddletag3/source/puddletag .
+coverart
+
+if [[ $1 == -l ]]; then
+    lyrics
+fi
+
+nice -n 19 replaygain
+
+# if command -v md5sum >& /dev/null; then
+#     md5sum * > md5
+# else
+#     md5 -r * > md5
+# fi
+
+echo -e '\a'

@@ -1,0 +1,6 @@
+#!/bin/zsh
+zcat /mp3/playlist.gz|sed -e 's|^\(/.*/\).*$|\1|'| uniq| while read i; do
+    if [[ ! -e "${i}cover.jpg" ]]; then
+        echo "$i";
+    fi
+done

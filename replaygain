@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+# requires fgrep, metaflac, r128gain
+id3v2 -D *.flac >& /dev/null
+
+# Don't run more than one process at the same time. That really kills
+# performance.
+while :; do
+    if ! pgrep -f 'r128gain ' >& /dev/null; then
+        break
+    fi
+    echo -n '.'
+    sleep 5
+done
+
+nice -n 19 r128gain -a -s -r .

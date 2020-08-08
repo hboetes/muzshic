@@ -23,14 +23,13 @@ if [[ $dirs == "" ]]; then
 fi
 
 echo 'Finding all directories'
-for d in $(find ${~dirs} -type d); do
+find ${~dirs} -type d -print0 | while read -d '' -r d; do
     echo -n "$d                               " # xxx
     echo -ne '\r'
-    #
-    find $d -maxdepth 1 -type f \
+    find "$d" -maxdepth 1 -type f \
          -name '*.mp3'  -o -name '*.dff'  -o  -name '*.mpc' -name '*.m4a' -o -name '*.ogg'  -o  -name '*.flac' -o -name '*.ape' -o -name '*.aac' -name '*.opus' -o -name '*.wav' |\
         while read i; do
-            if ! bs1770gain -l "$i" 2>&1 | /bin/grep -q REPLAYGAIN_ALBUM_ ; then
+            if ! bs1770gain -l "$i" 2>&1 | fgrep -q REPLAYGAIN_ALBUM_ ; then
                 echo "$i has no replaygain info :-/"
                 echo "${i%/*}" >> dirlist
             fi

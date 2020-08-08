@@ -16,11 +16,7 @@ fi
 
 readtag ()
 {
-    # if [[ $recurse == true ]]; then
-    #     exiftool -q -q -p '$'$1 $2 >& /dev/null
-    # else
     exiftool -q -q -p '$'$1 $2
-    # fi
 }
 
 get_lyrics()
@@ -28,7 +24,10 @@ get_lyrics()
     artist="$(readtag artist $1)"
     album="$(readtag album $1)"
     title="$(readtag title $1)"
+    # LinksNominate is the most common crap found in lyrics.
     glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${1}.txt" || echo 'Instrumental' > "${1}.txt"
+    sed -i -n "/linksNominate/q;p" "${1}.txt"
+    sed -i -n "/^Credits/q;p" "${1}.txt"
 }
 
 write_flac_lyrics()
@@ -44,12 +43,23 @@ write_mp3_lyrics()
 }
 
 
+print_title()
+{
+    cat << EOF
++-------------
+| $1
++-------------
+EOF
+}
+
+
 case $1 in
     *.flac)
         if [[ -z $(readtag lyrics "$1") ]]; then
             get_lyrics "$1"
             write_flac_lyrics "$1"
         fi
+        print_title "$1"
         readtag lyrics "$1"
         ;;
     *.mp3)
@@ -57,10 +67,10 @@ case $1 in
             get_lyrics "$1"
             write_mp3_lyrics "$1"
         fi
+        print_title "$1"
         readtag lyrics "$1"
         ;;
     '')
-        export recurse=true
         for i in *.(mp3|flac); do
             $0 $i
         done

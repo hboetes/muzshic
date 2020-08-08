@@ -2,7 +2,7 @@
 
 getdirs()
 {
-    zgrep 'mp3$' playlist.gz| while read line; do
+    zgrep "${1:=mp3}\$" /mp3/playlist.gz| while read line; do
         line=${line#*/}
         line=${line#*/}
         line=${line#*/}
@@ -10,4 +10,4 @@ getdirs()
         echo ${line//\// }
     done
 }
-getdirs|uniq
+getdirs $1 | uniq
