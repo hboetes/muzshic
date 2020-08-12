@@ -1,0 +1,10 @@
+#!/bin/zsh -ex
+source="/home/nicotine/done/Living In The Past"
+artist="$(metaflac --show-tag=artist $source/*' 01 '*)"
+artist="${artist#artist=}"
+dir=$(ls -d /mp3/*/"$artist")
+if [[ -z "$dir" ]]; then
+    echo "I don't know the artist $artist, please create a $dir for them."
+fi
+rsync --info=progress2 --partial -rlptD "$source" "$dir"
+rm -rf "$source"

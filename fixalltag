@@ -24,11 +24,10 @@ if [[ $1 == -l ]]; then
 fi
 
 nice -n 19 replaygain
+album="$(metaflac --show-tag=album *' 01 '*)"
+album="${album#album=}"
 
-# if command -v md5sum >& /dev/null; then
-#     md5sum * > md5
-# else
-#     md5 -r * > md5
-# fi
-
+cd ~/incoming
+mv "$album" ~/done/
+chmod -R g+w ~/done/
 echo -e '\a'
