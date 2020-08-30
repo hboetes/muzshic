@@ -6,10 +6,31 @@ if [[ -z "$source" ]]; then
 fi
 artist="$(metaflac --show-tag=artist $source/*' 01 '*)"
 artist="${artist#artist=}"
-dir=$(ls -d /mp3/*/"$artist")
+dir=$(ls -d /mp3/*/"$artist" || :)
 if [[ -z "$dir" ]]; then
-    echo "I don't know the artist $artist, please create a $dir for them."
-    exit 0
+    echo "I don't know the artist $artist, where do you want to put 'em."
+    while :; do
+        printf "\e[;9G[4]ad  [H]ipHop  [J]azz  [K]lassiek  [M]etal  [P]op  [S]oundtracks "
+        read -sk1 answer
+        case $answer in
+            4)
+                dir="/mp3/4ad/$artist"; break ;;
+            h)
+                dir="/mp3/HipHop/$artist"; break ;;
+            j)
+                dir="/mp3/Jazz/$artist"; break  ;;
+            k)
+                dir="/mp3/Klassiek/$artist"; break;;
+            m)
+                dir="/mp3/Metal/$artist"; break ;;
+            p)
+                dir="/mp3/Pop/$artist"; break ;;
+            s)
+                dir="/mp3/Soundtracks/$artist"; break ;;
+        esac
+    done
+    mkdir $dir
+    echo
 fi
 set -x
 rsync -v --info=progress2 --partial -rlptD "$source" "$dir"
