@@ -27,7 +27,7 @@ nice -n 19 replaygain
 album="$(metaflac --show-tag=album *' 01 '*)"
 album="${album#album=}"
 
-cd ~/incoming
+cd ../
 mv "$album" ~/done/
 chmod -R g+w ~/done/
 echo -e '\a'
