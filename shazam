@@ -1,0 +1,14 @@
+#!/bin/zsh
+for i in */*(/); do
+    # echo $i
+    (
+        cd "$i"
+        if [[ ! -e shazam.txt ]]; then
+            if ls *" "01" "*.flac > /dev/null 2>&1; then
+                songrec audio-file-to-recognized-song *" "01" "*.flac > shazam.txt
+            else
+                echo "$i"
+            fi
+        fi
+    )
+done

@@ -1,0 +1,6 @@
+#!/bin/zsh
+find . -type d -mindepth 3 -print0 | while read -d '' -r dir; do
+    if find "$dir" -name '*.flac'|fgrep -q flac && find "$dir" -name '*.mp3'|fgrep -q mp3; then
+        echo "$dir has both flac and mp3 files"
+    fi
+done

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# I really can't hear the difference. Blame my old age and tinnitus.
+
+for i in *.flac; do
+    ffmpeg -i "$i" -sample_fmt s16 -ar 48000 "new_$i"
+    metaflac --export-tags-to=- "$i" | metaflac --remove-all-tags --import-tags-from=- "new_$i"
+done
