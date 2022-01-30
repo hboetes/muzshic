@@ -6,7 +6,7 @@ if [[ -z "$source" ]]; then
 fi
 artist="$(metaflac --show-tag=artist $source/*' 01 '*)"
 artist="${artist#artist=}"
-dir=$(ls -d /mp3/*/"$artist" || :)
+dir=($(ls -d /music/*/"$artist" || :))
 if [[ -z "$dir" ]]; then
     echo "I don't know the artist $artist, where do you want to put 'em."
     while :; do
@@ -14,22 +14,22 @@ if [[ -z "$dir" ]]; then
         read -sk1 answer
         case $answer in
             4)
-                dir="/mp3/4ad/$artist"; break ;;
+                dir="/music/4ad/$artist"; break ;;
             h)
-                dir="/mp3/HipHop/$artist"; break ;;
+                dir="/music/HipHop/$artist"; break ;;
             j)
-                dir="/mp3/Jazz/$artist"; break  ;;
+                dir="/music/Jazz/$artist"; break  ;;
             k)
-                dir="/mp3/Klassiek/$artist"; break;;
+                dir="/music/Klassiek/$artist"; break;;
             m)
-                dir="/mp3/Metal/$artist"; break ;;
+                dir="/music/Metal/$artist"; break ;;
             p)
-                dir="/mp3/Pop/$artist"; break ;;
+                dir="/music/Pop/$artist"; break ;;
             s)
-                dir="/mp3/Soundtracks/$artist"; break ;;
+                dir="/music/Soundtracks/$artist"; break ;;
         esac
     done
-    mkdir $dir
+    mkdir -p $dir
     echo
 fi
 set -x

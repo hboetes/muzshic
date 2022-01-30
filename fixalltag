@@ -5,6 +5,17 @@ done
 
 mid3v2 -D *.flac
 
+echo "Checking for broken flac files, just a moment."
+find . -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken_flac.log
+
+if [[ -s broken_flac.log ]]; then
+    echo "Broken flacs detected." >&2
+    cat broken_flac.log
+    exit 1
+else
+    rm broken_flac.log
+fi
+
 while :; do
     if ! pgrep -f 'puddletag ' >& /dev/null; then
         break
@@ -16,7 +27,6 @@ done
 cd .
 
 DISPLAY=:0.0 puddletag .
-# DISPLAY=:0.0 /usr/pkgmk/source/puddletag3/source/puddletag .
 coverart
 
 if [[ $1 == -l ]]; then

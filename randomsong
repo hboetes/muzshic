@@ -34,7 +34,7 @@ debug=
 
 debug()
 {
-    if [[ $debug == 1 ]]; then
+    if [[ "$debug" == 1 ]]; then
         print_yellow "$prog: $1" >&2
     fi
 }
@@ -290,7 +290,7 @@ queue_mode()
         esac
 
 
-        if [[ $pause == "TRUE" ]]; then
+        if [[ "$pause" == TRUE ]]; then
             pause
         fi
     done
@@ -453,7 +453,7 @@ while  (($# > 0)); do
             shift 1
             ;;
         -e)
-            exec ${VISUAL:=vi} $play_queue
+            exec "${VISUAL:=vi}" $play_queue
             ;;
         -H)
             head="TRUE"
@@ -551,7 +551,7 @@ check_pid
 # isn't running.
 if [[ ! -f $pid_dir/pid ]] && [[ -s $play_queue ]]; then
     queue_mode
-elif [[ $pause == "TRUE" ]]; then
+elif [[ "$pause" == "TRUE" ]]; then
     song="PAUSE"
     head="TRUE"
     headcount=1
@@ -560,7 +560,7 @@ elif [[ $pause == "TRUE" ]]; then
     refresh
     echo "After this song $prog will take a break."
 else
-    if [[ $head == "TRUE" ]]; then
+    if [[ "$head" == "TRUE" ]]; then
         WHERE="head"
     else
         WHERE="bottom"
@@ -568,7 +568,7 @@ else
     echo "$holdcount songs added to the $WHERE of the play queue file."
     do_nothing="TRUE"
     # *Cough*ugly*cough*
-    if [[ $pause == "TRUE" ]]; then
+    if [[ "$pause" == "TRUE" ]]; then
         song="PAUSE"
         head="TRUE"
         headcount=1

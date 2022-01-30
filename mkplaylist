@@ -52,9 +52,9 @@ if [[ $1 == -f ]]; then
     zcat $playlist $playlist.new.gz | sort -n | gzip -c > $playlist.newest.gz
     mv $playlist.newest.gz $playlist.new.gz
 fi
-if [ -e $playlist ]; then
+if [ -e $playlist ] && [[ -n $TERM ]]; then
     # If zdiff returns an error, it's because a difference has been found.
     (zdiff -u $playlist $playlist.new.gz || : )| colordiff | less -R || print "Consider installing diff and colordiff" >&2
 fi
 mv -f ${playlist}.new.gz $playlist
-zgrep -E '\.(wav|ape)$' $playlist
+[[ -n $TERM ]] && zgrep -E '\.(wav|ape)$' $playlist
