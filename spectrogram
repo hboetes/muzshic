@@ -5,10 +5,15 @@ if ! command -v sox >& /dev/null; then
     exit 1
 fi
 
+if [[ -f spectrogram.png ]]; then
+    echo 'spectrogram.png already exists' >&2
+    exit 1
+fi
+
 if [[ -z $1 ]]; then
-    i="$(ls *.flac|head -n1)"
+    i="*.flac"
 else
     i="$1"
 fi
 
-sox "$i" -n spectrogram -o spectrogram.png
+sox "$i" -n spectrogram
