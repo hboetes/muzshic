@@ -1,0 +1,14 @@
+#!/bin/zsh
+
+if ! command -v sox >& /dev/null; then
+    echo "No sox installed, that sox!" >&2
+    exit 1
+fi
+
+if [[ -z $1 ]]; then
+    i="$(ls *.flac|head -n1)"
+else
+    i="$1"
+fi
+
+sox "$i" -n spectrogram -o spectrogram.png
