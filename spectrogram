@@ -16,4 +16,4 @@ else
     i="$1"
 fi
 
-sox "$i" -n spectrogram
+sox "$i" -n spectrogram -w kaiser -t $i
