@@ -22,7 +22,7 @@ So...
 
 # Other software that's great to have:
  * puddletag, to fix your tags and filenames.
- * bs1770gain, to set all your replaygain tags (make sure you removed all image tags from your files, though)
+ * r128gain, to set all your replaygain tags (make sure you removed all image tags from your files, though)
 
 ## Install
 Install? Are you crazy? Just checkout this directory somewhere, and
