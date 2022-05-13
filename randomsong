@@ -454,6 +454,7 @@ while  (($# > 0)); do
             ;;
         -e)
             exec "${VISUAL:=vi}" $play_queue
+            refresh
             ;;
         -H)
             head="TRUE"

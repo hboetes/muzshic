@@ -42,15 +42,15 @@ if [ -r dirlist ]; then
 
 foobar()
 {
-    rsync -avP *.mp3 ~/mp3
-    cd ~/mp3
+    rsync -avP *.mp3 ~/music
+    cd ~/music
     bs1770gain -o foo *.mp3 || return
     chmod 644 foo/*
     mv -f foo/* .
     rmdir foo
     cd -
-    rsync -avP ~/mp3/ .
-    rm ~/mp3/*.mp3
+    rsync -avP ~/music/ .
+    rm ~/music/*.mp3
     chmod 644 *.mp3
 }
 

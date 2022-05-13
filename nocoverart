@@ -1,6 +1,6 @@
 #!/bin/zsh
-zcat /mp3/playlist.gz|sed -e 's|^\(/.*/\).*$|\1|'| uniq| while read i; do
-    if [[ ! -e "${i}cover.jpg" ]]; then
+zcat /music/playlist.gz|sed -e 's|^\(/.*/\).*$|\1|'| uniq| while read i; do
+    if [[ ! -e "${i}cover.jpg" ]] && [[ ! -e "${i}cover.png" ]]; then
         echo "$i";
     fi
 done

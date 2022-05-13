@@ -2,7 +2,7 @@
 
 getdirs()
 {
-    zgrep "${1:=mp3}\$" /mp3/playlist.gz| while read line; do
+    zgrep "${1:=mp3}\$" /music/playlist.gz| while read line; do
         line=${line#*/}
         line=${line#*/}
         line=${line#*/}
