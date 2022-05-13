@@ -1,0 +1,2 @@
+#!/bin/sh
+metaflac --set-tag=COMPILATION=1 *.flac

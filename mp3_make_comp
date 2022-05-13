@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w
+# mp3_make_comp
+# Max Baker
+# 4/29/09
+#
+# This script will set the I-Tunes Compilation Tag (TCMP)
+# on Files passed to it.   If no files are passed, it works on *.mp3 in the current directory.
+#
+# found here: http://warped.org/blog/2009/05/02/itunes-setting-the-compilation-flag-on-mp3s-using-perl/
+  
+use MP3::Tag;
+ 
+unless (scalar @ARGV) {
+    @ARGV = glob("*.mp3");
+}
+ 
+foreach my $f (@ARGV) {
+    next unless -r $f;
+    add_comp($f);
+}
+ 
+sub add_comp {
+    my $file = shift;
+    my $mp3 = MP3::Tag->new($file);
+    $mp3->config('write_v24' => 1);
+ 
+    # scan file for existing tags
+    $mp3->get_tags;
+ 
+    unless (exists $mp3->{ID3v2}) {
+        $mp3->new_tag("ID3v2");
+    }
+ 
+    # check for existing tag
+    my ($info, $name, @rest) = $mp3->{ID3v2}->get_frame("TCMP");
+    if (defined($info)) {
+        print "$file : TCMP=$info already set.\n";
+        return;
+    }   
+ 
+    print "$file : Setting TCMP=1\n";
+    $mp3->{ID3v2}->add_frame("TCMP", "1") or die "$file : Adding TCMP frame failed.\n";
+    $mp3->{ID3v2}->write_tag;
+    $mp3->close();
+}
