@@ -33,7 +33,8 @@ if [[ $1 == -l ]]; then
     lyrics
 fi
 
-spectrogram
+dr14_tmeter
+/music/.bin/spectrogram
 
 nice -n 19 replaygain
 album="$(metaflac --show-tag=album *' 01 '*)"
