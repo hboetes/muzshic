@@ -26,7 +26,7 @@ done
 
 cd .
 
-DISPLAY=:0.0 puddletag .
+puddletag .
 coverart
 
 if [[ $1 == -l ]]; then
@@ -34,7 +34,7 @@ if [[ $1 == -l ]]; then
 fi
 
 dr14_tmeter
-/music/.bin/spectrogram
+spectrogram
 
 nice -n 19 replaygain
 album="$(metaflac --show-tag=album *' 01 '*)"
