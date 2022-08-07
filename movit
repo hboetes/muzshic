@@ -1,5 +1,5 @@
 #!/bin/zsh -e
-source="$(find /home/nicotine/done/ -type d -mindepth 1|head -n 1)"
+source="$(find /home/nicotine/done/ -mindepth 1 -type d | head -n 1)"
 if [[ -z "$source" ]]; then
     echo "Nothing to do!"
     exit 0
