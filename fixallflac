@@ -1,0 +1,6 @@
+#!/bin/zsh
+for i in *.flac; do
+    flac -f $i
+done
+
+flac -wst *.flac
