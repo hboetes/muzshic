@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+find /music/ -name 'cover (1).jpg' | while read cover; do
+    sizenew=$(du -b "$cover"| cut -f1)
+    sizeold=$(du -b "${cover%/*}/cover.jpg"| cut -f1)
+    if [[ $sizenew -gt $sizeold ]]; then
+        echo "$cover $sizenew is greater than $sizeold"
+        mv "$cover" "${cover%/*}/cover.jpg" || exit 0
+    else
+        rm "$cover"
+    fi
+done
