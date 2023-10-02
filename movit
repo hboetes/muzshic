@@ -1,16 +1,17 @@
 #!/bin/zsh -e
-source="$(find /home/nicotine/done/ -mindepth 1 -type d | head -n 1)"
+source="$(find ~nicotine/done/ -mindepth 1 -type d | head -n 1)"
 if [[ -z "$source" ]]; then
     echo "Nothing to do!"
     exit 0
 fi
-artist="$(metaflac --show-tag=artist $source/*' 01 '*)"
+artist="$(metaflac --show-tag=artist $source/*(1-|\ )01\ *.flac)"
 artist="${artist#artist=}"
+artist="${artist#ARTIST=}"
 dir=($(ls -d /music/*/"$artist" || :))
 if [[ -z "$dir" ]]; then
     echo "I don't know the artist $artist, where do you want to put 'em."
     while :; do
-        printf "\e[;9G[4]ad  [H]ipHop  [J]azz  [K]lassiek  [M]etal  [P]op  [S]oundtracks "
+        printf "\e[;9G[4]ad  [H]ipHop  [J]azz  [K]lassiek  [M]etal  [P]op  [S]oundtracks [N]ew"
         read -sk1 answer
         case $answer in
             4)
@@ -27,6 +28,8 @@ if [[ -z "$dir" ]]; then
                 dir="/music/Pop/$artist"; break ;;
             s)
                 dir="/music/Soundtracks/$artist"; break ;;
+            n)
+                dir="/music/New/$artist"; break ;;
         esac
     done
     mkdir -p $dir
