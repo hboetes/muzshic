@@ -1,0 +1,57 @@
+
+#!/bin/zsh
+for i in log cue m3u nfo sfv m3u ffp accurip rtf CUE; do
+    find . -maxdepth 1 -type f -name "*.$i" -delete
+done
+
+mid3v2 -D *.flac
+
+echo "Checking for broken flac files, just a moment."
+find . -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken_flac.log 2>&1
+
+if [[ -s broken_flac.log ]]; then
+    echo "Broken flacs detected." >&2
+    cat broken_flac.log
+    exit 1
+else
+    rm broken_flac.log
+fi
+
+while :; do
+    if ! pgrep -f 'picard ' -u $USER >& /dev/null; then
+        break
+    fi
+    echo -n '.'
+    sleep 5
+done
+
+cd .
+
+picard .
+
+if [[ $1 == -l ]]; then
+    lyrics
+fi
+if [[ $1 == -L ]]; then
+    lyrics -L
+fi
+
+if [[ ! -e dr14-DR*.txt ]]; then
+    dr14_tmeter
+fi
+
+spectrogram
+
+rsgain easy -S -m4 .
+
+metaflac --show-tag=ALBUM "$(ls *.flac|head -n1)" | read album
+album="${album#album=}"
+album="${album#ALBUM=}"
+
+# Don't move it if it's already in /music
+if ! pwd | grep -q /music; then
+    cwd=${PWD##*/}
+    cd ../
+    mv "$cwd" ~/done/"$album"
+    chmod -R g+w ~/done/
+fi
