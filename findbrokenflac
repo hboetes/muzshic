@@ -1,1 +1,1 @@
-find /bigstorage/music -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken-flac 2>&1
+find /music -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken-flac 2>&1
