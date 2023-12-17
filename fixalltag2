@@ -44,7 +44,8 @@ spectrogram
 
 rsgain easy -S -m4 .
 
-metaflac --show-tag=ALBUM "$(ls *.flac|head -n1)" | read album
+set -x
+album=$(metaflac --show-tag=ALBUM "$(ls -1 *.flac|head -n1)")
 album="${album#album=}"
 album="${album#ALBUM=}"
 
