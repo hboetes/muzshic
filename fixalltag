@@ -6,7 +6,7 @@ done
 mid3v2 -D *.flac
 
 echo "Checking for broken flac files, just a moment."
-find . -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken_flac.log
+find . -type f -iname '*.flac' -print0 | xargs -0 flac -wst > broken_flac.log 2>&1
 
 if [[ -s broken_flac.log ]]; then
     echo "Broken flacs detected." >&2
@@ -32,6 +32,9 @@ coverart
 if [[ $1 == -l ]]; then
     lyrics
 fi
+if [[ $1 == -L ]]; then
+    lyrics -L
+fi
 
 dr14_tmeter
 spectrogram
@@ -40,7 +43,10 @@ nice -n 19 replaygain
 album="$(metaflac --show-tag=album *' 01 '*)"
 album="${album#album=}"
 
-cd ../
-mv "$album" ~/done/
-chmod -R g+w ~/done/
+# Don't move it if it's already in /music
+if ! pwd | grep -q /music; then
+    cd ../
+    mv "$album" ~/done/
+    chmod -R g+w ~/done/
+fi
 echo -e '\a'
