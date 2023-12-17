@@ -16,8 +16,6 @@ else
     i="$1"
 fi
 
-# sox "$i" -n spectrogram -w kaiser -t $i
-
 first_file=$(ls ${~i}|head -1)
 artist=$(metaflac --show-tag=artist $first_file|awk -F '=' '{print $2}')
 album=$(metaflac --show-tag=album $first_file|awk -F '=' '{print $2}')
