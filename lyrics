@@ -14,6 +14,8 @@ if [[ $faileddep == true ]]; then
     exit 1
 fi
 
+nameofprog="$0"
+
 readtag ()
 {
     exiftool -q -q -p '$'$1 $2
@@ -24,14 +26,17 @@ get_lyrics()
     artist="$(readtag artist $1)"
     album="$(readtag album $1)"
     title="$(readtag title $1)"
+    if ! glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${1}.txt" && [[ $instrumental != false ]]; then
+        echo 'Instrumental' > "${1}.txt"
+    fi
     # LinksNominate is the most common crap found in lyrics.
-    glyrc lyrics -a "$artist" -b "$album" -t "$title" -w "${1}.txt" || echo 'Instrumental' > "${1}.txt"
     sed -i -n "/linksNominate/q;p" "${1}.txt"
     sed -i -n "/^Credits/q;p" "${1}.txt"
 }
 
 write_flac_lyrics()
 {
+    metaflac --remove-tag=lyrics "$1"
     metaflac --set-tag-from-file="lyrics=${1}.txt" "$1"
     rm "${1}.txt"
 }
@@ -42,6 +47,13 @@ write_mp3_lyrics()
     rm "${1}.txt"
 }
 
+
+do_all_tracks()
+{
+    for i in *.(mp3|flac); do
+        $nameofprog "$i"
+    done
+}
 
 print_title()
 {
@@ -54,26 +66,27 @@ EOF
 
 
 case $1 in
-    *.flac)
-        if [[ -z $(readtag lyrics "$1") ]]; then
-            get_lyrics "$1"
-            write_flac_lyrics "$1"
+    edit)
+        if [[ $2 == *.mp3 || $2 == *.flac ]]; then
+            readtag lyrics "$2" > "$2.txt"
+            $EDITOR "$2.txt"
+            write_${2##*.}_lyrics "$2"
         fi
-        print_title "$1"
-        readtag lyrics "$1"
         ;;
-    *.mp3)
+    *.flac|*.mp3)
         if [[ -z $(readtag lyrics "$1") ]]; then
             get_lyrics "$1"
-            write_mp3_lyrics "$1"
+            write_${1##*.}_lyrics "$1"
         fi
         print_title "$1"
         readtag lyrics "$1"
         ;;
     '')
-        for i in *.(mp3|flac); do
-            $0 $i
-        done
+        do_all_tracks
+        ;;
+    '-L')
+        instrumental=false
+        do_all_tracks
         ;;
     *)
         echo "So far I can do flac and mp3 files."
