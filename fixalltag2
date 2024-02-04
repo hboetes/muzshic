@@ -1,7 +1,14 @@
-
 #!/bin/zsh
-for i in log cue m3u nfo sfv m3u ffp accurip rtf CUE; do
-    find . -maxdepth 1 -type f -name "*.$i" -delete
+
+for i in *.sfv(N); do
+    if ! sfv-hash -c $i; then
+        echo "Broken files detected!"
+        exit 1
+    fi
+done
+
+for i in log cue m3u nfo sfv m3u ffp accurip rtf; do
+    find . -maxdepth 1 -type f -iname "*.$i" -delete
 done
 
 mid3v2 -D *.flac
