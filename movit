@@ -4,7 +4,7 @@ if [[ -z "$source" ]]; then
     echo "Nothing to do!"
     exit 0
 fi
-artist="$(metaflac --show-tag=artist $source/*(1-|\ )01\ *.flac)"
+artist="$(metaflac --show-tag=artist $source/*([1-9]-|\ )01\ *.flac)"
 artist="${artist#artist=}"
 artist="${artist#ARTIST=}"
 dir=($(ls -d /music/*/"$artist" || :))
