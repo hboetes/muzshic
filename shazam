@@ -1,5 +1,5 @@
 #!/bin/zsh
-for i in */*(/); do
+for i in $(find . -type d); do
     # echo $i
     (
         cd "$i"
