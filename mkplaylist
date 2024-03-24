@@ -54,7 +54,7 @@ if [[ $1 == -f ]]; then
 fi
 if [ -e $playlist ] && [[ -n $TERM ]]; then
     # If zdiff returns an error, it's because a difference has been found.
-    (zdiff -u $playlist $playlist.new.gz || : ) | diff-so-fancy | less --tabs=4 -RFX || print "Consider installing diff and diff-so-fancy" >&2
+    (zdiff -u $playlist $playlist.new.gz || : ) | colordiff | diff-so-fancy | less --tabs=4 -RFX || print "Consider installing diff and diff-so-fancy" >&2
 fi
 mv -f ${playlist}.new.gz $playlist
 [[ -n $TERM ]] && zgrep -iE '\.(wav|ape)$' $playlist
