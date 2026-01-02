@@ -1,6 +1,14 @@
 #!/bin/zsh
-for i in log cue m3u nfo sfv m3u ffp accurip rtf CUE; do
-    find . -maxdepth 1 -type f -name "*.$i" -delete
+
+for i in *.sfv(N); do
+    if ! sfv-hash -c $i; then
+        echo "Broken files detected!"
+        exit 1
+    fi
+done
+
+for i in log cue m3u nfo sfv m3u ffp accurip rtf; do
+    find . -maxdepth 1 -type f -iname "*.$i" -delete
 done
 
 mid3v2 -D *.flac
@@ -17,7 +25,7 @@ else
 fi
 
 while :; do
-    if ! pgrep -f 'puddletag ' >& /dev/null; then
+    if ! pgrep -f 'picard ' -u $USER >& /dev/null; then
         break
     fi
     echo -n '.'
@@ -26,8 +34,7 @@ done
 
 cd .
 
-puddletag .
-coverart
+picard .
 
 if [[ $1 == -l ]]; then
     lyrics
@@ -36,17 +43,23 @@ if [[ $1 == -L ]]; then
     lyrics -L
 fi
 
-dr14_tmeter
+if [[ ! -e dr14-DR*.txt ]]; then
+    dr14_tmeter .
+fi
+
 spectrogram
 
-nice -n 19 replaygain
-album="$(metaflac --show-tag=album *' 01 '*)"
+rsgain easy -S -m4 .
+
+set -x
+album=$(metaflac --show-tag=ALBUM "$(ls -1 *.flac|head -n1)")
 album="${album#album=}"
+album="${album#ALBUM=}"
 
 # Don't move it if it's already in /music
 if ! pwd | grep -q /music; then
+    cwd=${PWD##*/}
     cd ../
-    mv "$album" ~/done/
+    mv "$cwd" ~/done/"$album"
     chmod -R g+w ~/done/
 fi
-echo -e '\a'
